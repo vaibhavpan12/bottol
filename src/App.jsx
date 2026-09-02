@@ -1,4 +1,5 @@
 import { useState } from 'react';
+
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import FeaturedStrip from './components/FeaturedStrip';
@@ -10,10 +11,18 @@ import Testimonial from './components/Testimonial';
 import Footer from './components/Footer';
 import CartDrawer from './components/CartDrawer';
 import CheckoutModal from './components/CheckoutModal';
+
 import { CartProvider, useCart } from './context/CartContext';
 
+import AddProduct from './pages/AdminScreen/AddProduct';
+
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+
+
 function StorefrontShell() {
+
   const { closeDrawer } = useCart();
+
   const [isCheckoutOpen, setCheckoutOpen] = useState(false);
 
   function openCheckout() {
@@ -24,6 +33,7 @@ function StorefrontShell() {
   return (
     <>
       <Navbar />
+
       <main>
         <Hero />
         <FeaturedStrip />
@@ -33,17 +43,45 @@ function StorefrontShell() {
         <Spotlight />
         <Testimonial />
       </main>
+
       <Footer />
+
       <CartDrawer onCheckout={openCheckout} />
-      <CheckoutModal isOpen={isCheckoutOpen} onClose={() => setCheckoutOpen(false)} />
+
+      <CheckoutModal
+        isOpen={isCheckoutOpen}
+        onClose={() => setCheckoutOpen(false)}
+      />
     </>
   );
 }
 
+
 export default function App() {
+
   return (
-    <CartProvider>
-      <StorefrontShell />
-    </CartProvider>
+    <BrowserRouter>
+
+      <CartProvider>
+
+        <Routes>
+
+          {/* Main Storefront */}
+          <Route
+            path="/"
+            element={<StorefrontShell />}
+          />
+
+          {/* Admin - Add Product */}
+          <Route
+            path="/add-product"
+            element={<AddProduct />}
+          />
+
+        </Routes>
+
+      </CartProvider>
+
+    </BrowserRouter>
   );
 }
