@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
+
 import { FILTERS } from '../data/products';
+
 import ProductCard from './ProductCard';
 
 import { BASE_URL } from '../config/api';
+
 const FILTER_LABELS = {
   all: 'All',
   Tumblers: 'Tumblers',
@@ -26,7 +29,7 @@ export default function ProductGrid() {
         return response.json();
       })
       .then((data) => {
-        setProducts(data.products);
+        setProducts(data.products || []);
       })
       .catch((error) => {
         console.error(error);
@@ -57,8 +60,8 @@ export default function ProductGrid() {
     <section className="section" id="shop">
       <div className="wrap">
 
+        {/* Section Header */}
         <div className="section-head split">
-
           <div>
             <span className="kicker">
               Full catalog
@@ -70,7 +73,6 @@ export default function ProductGrid() {
           </div>
 
           <div className="tabs">
-
             {FILTERS.map((filter) => (
               <button
                 key={filter}
@@ -78,47 +80,85 @@ export default function ProductGrid() {
                   ? ' active'
                   : ''
                   }`}
-                onClick={() =>
-                  setActiveFilter(filter)
-                }
+                onClick={() => setActiveFilter(filter)}
               >
                 {FILTER_LABELS[filter]}
               </button>
             ))}
-
           </div>
-
         </div>
-
 
         {/* Loading Skeleton */}
         {loading ? (
           <div className="grid">
-
             {[1, 2, 3, 4].map((item) => (
               <ProductCard
                 key={`skeleton-${item}`}
                 loading={true}
               />
             ))}
-
           </div>
 
         ) : error ? (
 
-          <p>{error}</p>
+          /* Error State */
+          <div className="empty-products">
+            <div className="empty-products-icon">
+              <span>!</span>
+            </div>
+
+            <div className="empty-products-content">
+              <span className="empty-products-kicker">
+                Something went wrong
+              </span>
+
+              <h3>
+                Unable to load products
+              </h3>
+
+              <p>
+                We couldn't load the collection right now.
+                <br />
+                Please try again later.
+              </p>
+            </div>
+          </div>
+
+        ) : items.length === 0 ? (
+
+          /* Empty Product State */
+          <div className="empty-products">
+            <div className="empty-products-icon">
+              <span>◌</span>
+            </div>
+
+            <div className="empty-products-content">
+              <span className="empty-products-kicker">
+                Collection coming soon
+              </span>
+
+              <h3>
+                No products available
+              </h3>
+
+              <p>
+                We're preparing something special for you.
+                <br />
+                Check back soon for new bottles.
+              </p>
+            </div>
+          </div>
 
         ) : (
 
+          /* Products */
           <div className="grid">
-
             {items.map((product) => (
               <ProductCard
                 key={product._id}
                 product={product}
               />
             ))}
-
           </div>
 
         )}
