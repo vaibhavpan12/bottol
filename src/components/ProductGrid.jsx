@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { FILTERS } from '../data/products';
 import ProductCard from './ProductCard';
 
+import { BASE_URL } from '../config/api';
 const FILTER_LABELS = {
   all: 'All',
   Tumblers: 'Tumblers',
@@ -16,7 +17,7 @@ export default function ProductGrid() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetch('http://127.0.0.1:8000/api/products/AllProducts')
+    fetch(`${BASE_URL}/api/products/AllProducts`)
       .then((response) => {
         if (!response.ok) {
           throw new Error('Failed to fetch products');

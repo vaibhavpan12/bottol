@@ -21,21 +21,37 @@ function CartItem({ item, onChangeQty, onRemove }) {
     <div className="cart-item">
       <div className="ci-media">
         <span className="icon-wrap">
-          <Icon name={item.icon} />
+          <Icon name={item.icon || 'tumbler'} />
         </span>
       </div>
+
       <div className="ci-info">
         <span className="ci-name">{item.name}</span>
         <span className="ci-price">₹{item.price}</span>
+
         <div className="qty-row">
-          <button className="qty-btn" onClick={() => onChangeQty(item.id, -1)} aria-label="Decrease quantity">
+          <button
+            className="qty-btn"
+            onClick={() => onChangeQty(item._id, -1)}
+            aria-label="Decrease quantity"
+          >
             −
           </button>
+
           <span className="qty-val">{item.qty}</span>
-          <button className="qty-btn" onClick={() => onChangeQty(item.id, 1)} aria-label="Increase quantity">
+
+          <button
+            className="qty-btn"
+            onClick={() => onChangeQty(item._id, 1)}
+            aria-label="Increase quantity"
+          >
             +
           </button>
-          <button className="remove-link" onClick={() => onRemove(item.id)}>
+
+          <button
+            className="remove-link"
+            onClick={() => onRemove(item._id)}
+          >
             Remove
           </button>
         </div>
@@ -63,7 +79,12 @@ export default function CartDrawer({ onCheckout }) {
             <EmptyCart />
           ) : (
             cart.map((item) => (
-              <CartItem key={item.id} item={item} onChangeQty={changeQty} onRemove={removeItem} />
+              <CartItem
+                key={item._id}
+                item={item}
+                onChangeQty={changeQty}
+                onRemove={removeItem}
+              />
             ))
           )}
         </div>

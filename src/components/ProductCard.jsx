@@ -1,12 +1,17 @@
 import { useState } from 'react';
 import { useCart } from '../context/CartContext';
-
+import { BASE_URL } from '../config/api';
 export default function ProductCard({ product, loading = false }) {
-  const { addToCart } = useCart();
+  const {
+    cart,
+    addToCart,
+    changeQty,
+    removeItem,
+  } = useCart();
   const [imageLoaded, setImageLoaded] = useState(false);
 
   const imageUrl = product?.image?.startsWith('/uploads/')
-    ? `http://127.0.0.1:8000${product.image}`
+    ? `${BASE_URL}${product.image}`
     : product?.image;
 
   // Skeleton card
@@ -81,20 +86,57 @@ export default function ProductCard({ product, loading = false }) {
         </span>
 
         <div className="card-bottom">
-
           <span className="price">
             ₹{product.price}
           </span>
 
-          <button
-            className="add-btn"
-            aria-label={`Add ${product.name} to cart`}
-            disabled={product.quantity <= 0}
-            onClick={() => addToCart(product)}
-          >
-            <span>+</span>
-          </button>
+          {(() => {
+            const cartItem = cart.find(
+              (item) => item._id === product._id
+            );
 
+            if (!cartItem) {
+              return (
+                <button
+                  className="add-btn"
+                  aria-label={`Add ${product.name} to cart`}
+                  disabled={product.quantity <= 0}
+                  onClick={() => addToCart(product)}
+                >
+                  <span>+</span>
+                </button>
+              );
+            }
+
+            return (
+              <div className="card-qty-control">
+                <button
+                  className="qty-btn"
+                  onClick={() => changeQty(product._id, -1)}
+                  aria-label="Decrease quantity"
+                >
+                  −
+                </button>
+
+                <span className="qty-value">
+                  {cartItem.qty}
+                </span>
+
+                <button
+                  className="qty-btn"
+                  onClick={() => {
+                    if (cartItem.qty < product.quantity) {
+                      changeQty(product._id, 1);
+                    }
+                  }}
+                  disabled={cartItem.qty >= product.quantity}
+                  aria-label="Increase quantity"
+                >
+                  +
+                </button>
+              </div>
+            );
+          })()}
         </div>
 
       </div>

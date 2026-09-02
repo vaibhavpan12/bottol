@@ -69,7 +69,7 @@ export default function AddProduct() {
             }
 
             const response = await fetch(
-                'http://127.0.0.1:8000/api/products/AddProduct',
+                `${BASE_URL}/api/products/AddProduct`,
                 {
                     method: 'POST',
                     body: form,

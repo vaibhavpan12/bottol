@@ -11,7 +11,7 @@ import Testimonial from './components/Testimonial';
 import Footer from './components/Footer';
 import CartDrawer from './components/CartDrawer';
 import CheckoutModal from './components/CheckoutModal';
-
+import FloatingCart from './components/FloatingCart';
 import { CartProvider, useCart } from './context/CartContext';
 
 import AddProduct from './pages/AdminScreen/AddProduct';
@@ -45,6 +45,7 @@ function StorefrontShell() {
       </main>
 
       <Footer />
+      <FloatingCart />
 
       <CartDrawer onCheckout={openCheckout} />
 
