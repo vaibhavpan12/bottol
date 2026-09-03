@@ -1,23 +1,33 @@
 :root {
-  /* ---- Color: warm cream paper, espresso ink, clay + moss accents ---- */
-  --paper: #F7F2E7;
-  --paper-deep: #EEE3D0;
-  --ink: #221C15;
-  --ink-soft: #5C5346;
+  /* Pivora Blue Theme */
+
+  --paper: #F4F8FC;
+  --paper-deep: #EAF2F9;
+
+  --ink: #172B3F;
+  --ink-soft: #52677A;
+
   --card: #FFFFFF;
-  --clay: #8B4530;
-  --clay-deep: #6B3120;
-  --clay-tint: #F0DBCC;
-  --moss: #4B5A3F;
-  --moss-tint: #E3E7D8;
-  --line: rgba(34, 28, 21, 0.14);
-  --line-soft: rgba(34, 28, 21, 0.08);
-  --muted: #8F8571;
-  --shadow: 0 30px 60px rgba(34, 28, 21, 0.12);
-  --shadow-sm: 0 10px 24px rgba(34, 28, 21, 0.08);
+
+  --clay: #0B5A9E;
+  --clay-deep: #084777;
+  --clay-tint: #DCEAF6;
+
+  --moss: #0B5A9E;
+  --moss-tint: #E3EFF8;
+
+  --line: rgba(23, 43, 63, 0.14);
+  --line-soft: rgba(23, 43, 63, 0.08);
+
+  --muted: #7B8D9E;
+
+  --shadow: 0 30px 60px rgba(23, 43, 63, 0.12);
+  --shadow-sm: 0 10px 24px rgba(23, 43, 63, 0.08);
+
   --radius-lg: 28px;
   --radius-md: 16px;
   --radius-sm: 10px;
+
   --display: 'Instrument Serif', Georgia, serif;
   --body: 'Manrope', sans-serif;
 }
@@ -152,7 +162,7 @@ header {
   position: sticky;
   top: 0;
   z-index: 40;
-  background: rgba(247, 242, 231, 0.9);
+  background: #f2f7fb;
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--line);
 }
