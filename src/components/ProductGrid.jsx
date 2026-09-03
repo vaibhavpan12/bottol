@@ -5,7 +5,7 @@ import { FILTERS } from '../data/products';
 import ProductCard from './ProductCard';
 
 import { BASE_URL } from '../config/api';
-
+import ProductDetailsModal from './ProductDetailsModal';
 const FILTER_LABELS = {
   all: 'All',
   Tumblers: 'Tumblers',
@@ -18,7 +18,7 @@ export default function ProductGrid() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-
+const [selectedProduct, setSelectedProduct] = useState(null);
   useEffect(() => {
     fetch(`${BASE_URL}/api/products/AllProducts`)
       .then((response) => {
@@ -157,6 +157,7 @@ export default function ProductGrid() {
               <ProductCard
                 key={product._id}
                 product={product}
+                onProductClick={() => setSelectedProduct(product)}
               />
             ))}
           </div>
@@ -164,6 +165,10 @@ export default function ProductGrid() {
         )}
 
       </div>
+      <ProductDetailsModal
+  product={selectedProduct}
+  onClose={() => setSelectedProduct(null)}
+/>
     </section>
   );
 }
