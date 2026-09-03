@@ -122,7 +122,7 @@ export default function ProductDetailsModal({
           </div>
 
           {/* Cart controls */}
-          {qty === 0 ? (
+          {/* {qty === 0 ? (
             <button
               className="product-modal-add"
               onClick={increaseQty}
@@ -153,7 +153,7 @@ export default function ProductDetailsModal({
               </button>
 
             </div>
-          )}
+          )} */}
 
         </div>
       </div>

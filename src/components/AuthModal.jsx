@@ -1,8 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BASE_URL } from "../config/api";
 
-export default function AuthModal({ isOpen, onClose }) {
-  const [mode, setMode] = useState("login");
+export default function AuthModal({ isOpen, onClose, initialMode = "login" }) {
+  const [mode, setMode] = useState(initialMode);
+
+  useEffect(() => {
+    if (isOpen) {
+      setMode(initialMode);
+    }
+  }, [isOpen, initialMode]);
 
   const [loginData, setLoginData] = useState({
     email: "",

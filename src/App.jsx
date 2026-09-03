@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
@@ -18,15 +18,36 @@ import AddProduct from "./pages/AdminScreen/AddProduct";
 import ProductDetails from "./pages/ProductDetails";
 import Orders from "./pages/Orders";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
+import AuthModal from "./components/AuthModal";
 function StorefrontShell() {
   const { closeDrawer } = useCart();
 
   const [isCheckoutOpen, setCheckoutOpen] = useState(false);
+  const [isAuthOpen, setAuthOpen] = useState(false);
 
   function openCheckout() {
     closeDrawer();
-    setCheckoutOpen(true);
+
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      // Already logged in → directly payment
+      setCheckoutOpen(true);
+    } else {
+      // Not logged in → signup modal
+      setAuthOpen(true);
+    }
+  }
+
+  function handleAuthClose() {
+    setAuthOpen(false);
+
+    // Check whether signup/login was successful
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      setCheckoutOpen(true);
+    }
   }
 
   return (
@@ -50,6 +71,12 @@ function StorefrontShell() {
       <CheckoutModal
         isOpen={isCheckoutOpen}
         onClose={() => setCheckoutOpen(false)}
+      />
+
+      <AuthModal
+        isOpen={isAuthOpen}
+        onClose={handleAuthClose}
+        initialMode="signup"
       />
     </>
   );
