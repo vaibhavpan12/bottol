@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { BASE_URL } from '../../config/api';
 
 export default function AddProduct() {
     const [formData, setFormData] = useState({

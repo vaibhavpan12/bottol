@@ -23,81 +23,111 @@ import Orders from "./pages/Orders";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AuthModal from "./components/AuthModal";
 
-function StorefrontShell({ setToast }) {
+function StorefrontShell({
+  setToast,
+  isAuthOpen,
+  setAuthOpen,
+  isCheckoutOpen,
+  setCheckoutOpen,
+  authPurpose,
+  setAuthPurpose,
+}) {
   const { closeDrawer, isDrawerOpen } = useCart();
 
-  const [isCheckoutOpen, setCheckoutOpen] = useState(false);
-  const [isAuthOpen, setAuthOpen] = useState(false);
-
+  // =========================
+  // OPEN CHECKOUT
+  // =========================
   function openCheckout() {
     closeDrawer();
 
     const token = localStorage.getItem("token");
 
     if (token) {
-      // Already logged in → directly payment
+      // Already logged in
       setCheckoutOpen(true);
     } else {
-      // Not logged in → signup/login modal
+      // User came from Cart → Checkout
+      setAuthPurpose("checkout");
       setAuthOpen(true);
     }
   }
 
+  // =========================
+  // AUTH MODAL CLOSE
+  // =========================
   function handleAuthClose() {
     setAuthOpen(false);
 
-    // Check whether login/signup was successful
     const token = localStorage.getItem("token");
 
-    if (token) {
+    // Only open checkout if AuthModal
+    // was opened from Cart → Checkout
+    if (token && authPurpose === "checkout") {
       setCheckoutOpen(true);
     }
+
+    // Reset purpose
+    setAuthPurpose(null);
   }
 
+  // =========================
+  // AUTH SUCCESS
+  // =========================
   function handleAuthSuccess(message) {
-    console.log("🍞🍞 APP TOAST RECEIVED:", message);
+    console.log("🍞🍞 AUTH SUCCESS:", message);
 
-    const toastData = {
+    setToast({
       type: "success",
       message,
-    };
-
-    console.log("🍞🍞 SETTING TOAST:", toastData);
-
-    setToast(toastData);
+    });
   }
 
   return (
     <>
       <main>
         <Hero />
+
         <FeaturedStrip />
+
         <ProductGrid />
+
         <Marquee text="Precision engineered" />
+
         <Perks />
+
         <Spotlight />
+
         <Testimonial />
       </main>
 
       <Footer />
 
-      {/* Floating Cart */}
+      {/* =========================
+          FLOATING CART
+      ========================= */}
       <FloatingCart isHidden={isDrawerOpen || isCheckoutOpen || isAuthOpen} />
 
-      {/* Cart Drawer */}
+      {/* =========================
+          CART DRAWER
+      ========================= */}
       <CartDrawer onCheckout={openCheckout} />
 
-      {/* Checkout / Payment */}
+      {/* =========================
+          CHECKOUT / PAYMENT
+      ========================= */}
       <CheckoutModal
         isOpen={isCheckoutOpen}
         onClose={() => setCheckoutOpen(false)}
       />
 
-      {/* Login / Signup */}
+      {/* =========================
+          AUTH MODAL
+          ONLY ONE INSTANCE
+      ========================= */}
       <AuthModal
         isOpen={isAuthOpen}
         onClose={handleAuthClose}
-        initialMode="signup"
+        initialMode="login"
         onSuccess={handleAuthSuccess}
       />
     </>
@@ -105,29 +135,82 @@ function StorefrontShell({ setToast }) {
 }
 
 export default function App() {
+  // =========================
+  // TOAST
+  // =========================
   const [toast, setToast] = useState(null);
+
+  // =========================
+  // AUTH MODAL
+  // =========================
+  const [isAuthOpen, setAuthOpen] = useState(false);
+
+  // =========================
+  // CHECKOUT MODAL
+  // =========================
+  const [isCheckoutOpen, setCheckoutOpen] = useState(false);
+
+  // =========================
+  // AUTH PURPOSE
+  // "login"    → Navbar Login
+  // "checkout" → Cart Checkout
+  // =========================
+  const [authPurpose, setAuthPurpose] = useState(null);
 
   return (
     <BrowserRouter>
       <CartProvider>
-        {/* Navbar common for all pages */}
-        <Navbar />
-
+        {/* =========================
+            NAVBAR
+        ========================= */}
+        <Navbar
+          setToast={setToast}
+          onLogin={() => {
+            setAuthPurpose("login");
+            setAuthOpen(true);
+          }}
+        />
+        {/* =========================
+            ROUTES
+        ========================= */}
         <Routes>
-          {/* Main Storefront */}
-          <Route path="/" element={<StorefrontShell setToast={setToast} />} />
+          {/* =========================
+              STOREFRONT
+          ========================= */}
+          <Route
+            path="/"
+            element={
+              <StorefrontShell
+                setToast={setToast}
+                isAuthOpen={isAuthOpen}
+                setAuthOpen={setAuthOpen}
+                isCheckoutOpen={isCheckoutOpen}
+                setCheckoutOpen={setCheckoutOpen}
+                authPurpose={authPurpose}
+                setAuthPurpose={setAuthPurpose}
+              />
+            }
+          />
 
-          {/* Product Details */}
+          {/* =========================
+              PRODUCT DETAILS
+          ========================= */}
           <Route path="/product/:id" element={<ProductDetails />} />
 
-          {/* Admin */}
+          {/* =========================
+              ADMIN
+          ========================= */}
           <Route path="/add-product" element={<AddProduct />} />
 
-          {/* Orders */}
+          {/* =========================
+              ORDERS
+          ========================= */}
           <Route path="/orders" element={<Orders />} />
         </Routes>
 
-        {/* Global Toast */}
+        {/* =========================
+            GLOBAL TOAST
+        ========================= */}
         {toast && (
           <>
             {console.log("🔥🔥 TOAST IS RENDERING:", toast)}

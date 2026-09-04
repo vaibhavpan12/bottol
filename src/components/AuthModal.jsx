@@ -7,6 +7,11 @@ export default function AuthModal({
   initialMode = "login",
   onSuccess,
 }) {
+    console.log("🚨 AUTH MODAL PROPS:", {
+    isOpen,
+    onClose,
+    onSuccess,
+  });
   const [mode, setMode] = useState(initialMode);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -41,56 +46,75 @@ export default function AuthModal({
     setErrorMessage("");
   };
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+const handleLogin = async (e) => {
+  e.preventDefault();
 
-    console.log("🔥 LOGIN START");
+  if (isLoading) return;
 
-    try {
-      const response = await fetch(`${BASE_URL}/api/users/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(loginData),
-      });
+  console.log("🔥 LOGIN START");
 
-      console.log("🔥 API RESPONSE:", response.status);
+  setIsLoading(true);
+  setErrorMessage("");
 
-      const data = await response.json();
+  try {
+    const response = await fetch(`${BASE_URL}/api/users/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(loginData),
+    });
 
-      console.log("🔥 LOGIN DATA:", data);
+    console.log("🔥 API RESPONSE:", response.status);
 
-      if (!response.ok) {
-        throw new Error(data.detail || "Login failed");
-      }
+    const data = await response.json();
 
-      console.log("✅ LOGIN SUCCESS");
+    console.log("🔥 LOGIN DATA:", data);
 
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
-
-      console.log("✅ TOKEN SAVED");
-
-      console.log("➡️ MERGE CART START");
-      await mergeGuestCart();
-      console.log("✅ MERGE CART DONE");
-
-      window.dispatchEvent(new Event("auth-changed"));
-      console.log("✅ AUTH EVENT DISPATCHED");
-
-      console.log("➡️ CALLING onSuccess");
-      console.log("🚨 onSuccess VALUE:", onSuccess);
-      console.log("🚨 onSuccess TYPE:", typeof onSuccess);
-      onSuccess?.("You have been logged in successfully.");
-      console.log("✅ onSuccess CALLED");
-
-      onClose();
-      console.log("✅ MODAL CLOSED");
-    } catch (error) {
-      console.error("❌ LOGIN ERROR:", error);
+    if (!response.ok) {
+      throw new Error(data.detail || "Login failed");
     }
-  };
+
+    console.log("✅ LOGIN SUCCESS");
+
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data.user));
+
+    console.log("✅ TOKEN SAVED");
+
+    console.log("➡️ MERGE CART START");
+
+    await mergeGuestCart();
+
+    console.log("✅ MERGE CART DONE");
+
+    window.dispatchEvent(new Event("auth-changed"));
+
+    console.log("✅ AUTH EVENT DISPATCHED");
+
+    console.log("➡️ CALLING onSuccess");
+    console.log("🚨 onSuccess VALUE:", onSuccess);
+    console.log("🚨 onSuccess TYPE:", typeof onSuccess);
+
+    onSuccess?.("You have been logged in successfully.");
+
+    console.log("✅ onSuccess CALLED");
+
+    onClose();
+
+    console.log("✅ MODAL CLOSED");
+
+  } catch (error) {
+    console.error("❌ LOGIN ERROR:", error);
+
+    setErrorMessage(
+      error.message || "Something went wrong. Please try again."
+    );
+
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   async function handleSignup(e) {
     e.preventDefault();

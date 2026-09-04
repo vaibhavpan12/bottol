@@ -1,7 +1,6 @@
 import Icon from "./Icon";
 import { useCart } from "../context/CartContext";
 import { useEffect, useState } from "react";
-import AuthModal from "./AuthModal";
 import UserDrawer from "./UserDrawer";
 
 const NAV_LINKS = [
@@ -32,10 +31,9 @@ function MarqueeBand() {
   );
 }
 
-export default function Navbar() {
+export default function Navbar({ onLogin, setToast }) {
   const { totals, openDrawer } = useCart();
 
-  const [authModalOpen, setAuthModalOpen] = useState(false);
   const [userDrawerOpen, setUserDrawerOpen] = useState(false);
   const [user, setUser] = useState(null);
 
@@ -69,7 +67,6 @@ export default function Navbar() {
         <MarqueeBand />
 
         <nav className="nav wrap">
-
           <a href="#" className="logo">
             Pivora
           </a>
@@ -83,7 +80,6 @@ export default function Navbar() {
           </div>
 
           <div className="nav-actions">
-
             {user ? (
               <button
                 className="user-header-btn"
@@ -95,10 +91,7 @@ export default function Navbar() {
                 </span>
               </button>
             ) : (
-              <button
-                className="login-btn"
-                onClick={() => setAuthModalOpen(true)}
-              >
+              <button className="login-btn" onClick={onLogin}>
                 Login
               </button>
             )}
@@ -111,25 +104,23 @@ export default function Navbar() {
               <Icon name="cart" viewBox="0 0 24 24" />
 
               {totals.itemCount > 0 && (
-                <span className="cart-count">
-                  {totals.itemCount}
-                </span>
+                <span className="cart-count">{totals.itemCount}</span>
               )}
             </button>
-
           </div>
         </nav>
       </header>
-
-      <AuthModal
-        isOpen={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
-      />
 
       <UserDrawer
         isOpen={userDrawerOpen}
         onClose={() => setUserDrawerOpen(false)}
         user={user}
+        onSuccess={(message) => {
+          setToast({
+            type: "success",
+            message,
+          });
+        }}
       />
     </>
   );

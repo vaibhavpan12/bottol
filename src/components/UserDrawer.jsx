@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { BASE_URL } from "../config/api";
 import { useCart } from "../context/CartContext";
-export default function UserDrawer({ isOpen, onClose, user }) {
+export default function UserDrawer({ isOpen, onClose, user, onSuccess }) {
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [expandedOrder, setExpandedOrder] = useState(null);
@@ -66,6 +66,8 @@ export default function UserDrawer({ isOpen, onClose, user }) {
     localStorage.removeItem("user");
 
     window.dispatchEvent(new Event("auth-changed"));
+
+    onSuccess?.("You have been logged out successfully.");
 
     onClose();
   }
