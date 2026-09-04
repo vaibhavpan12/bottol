@@ -41,13 +41,10 @@ export default function AuthModal({
     setErrorMessage("");
   };
 
-  async function handleLogin(e) {
+  const handleLogin = async (e) => {
     e.preventDefault();
 
-    if (isLoading) return;
-
-    setIsLoading(true);
-    setErrorMessage("");
+    console.log("🔥 LOGIN START");
 
     try {
       const response = await fetch(`${BASE_URL}/api/users/login`, {
@@ -58,28 +55,42 @@ export default function AuthModal({
         body: JSON.stringify(loginData),
       });
 
+      console.log("🔥 API RESPONSE:", response.status);
+
       const data = await response.json();
+
+      console.log("🔥 LOGIN DATA:", data);
 
       if (!response.ok) {
         throw new Error(data.detail || "Login failed");
       }
+
+      console.log("✅ LOGIN SUCCESS");
+
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
 
+      console.log("✅ TOKEN SAVED");
+
+      console.log("➡️ MERGE CART START");
       await mergeGuestCart();
+      console.log("✅ MERGE CART DONE");
 
       window.dispatchEvent(new Event("auth-changed"));
+      console.log("✅ AUTH EVENT DISPATCHED");
 
+      console.log("➡️ CALLING onSuccess");
+      console.log("🚨 onSuccess VALUE:", onSuccess);
+      console.log("🚨 onSuccess TYPE:", typeof onSuccess);
       onSuccess?.("You have been logged in successfully.");
+      console.log("✅ onSuccess CALLED");
+
       onClose();
+      console.log("✅ MODAL CLOSED");
     } catch (error) {
-      setErrorMessage(
-        error.message || "Something went wrong. Please try again.",
-      );
-    } finally {
-      setIsLoading(false);
+      console.error("❌ LOGIN ERROR:", error);
     }
-  }
+  };
 
   async function handleSignup(e) {
     e.preventDefault();

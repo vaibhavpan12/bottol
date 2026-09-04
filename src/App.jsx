@@ -55,10 +55,16 @@ function StorefrontShell({ setToast }) {
   }
 
   function handleAuthSuccess(message) {
-    setToast({
+    console.log("🍞🍞 APP TOAST RECEIVED:", message);
+
+    const toastData = {
       type: "success",
       message,
-    });
+    };
+
+    console.log("🍞🍞 SETTING TOAST:", toastData);
+
+    setToast(toastData);
   }
 
   return (
@@ -123,11 +129,15 @@ export default function App() {
 
         {/* Global Toast */}
         {toast && (
-          <Toast
-            message={toast.message}
-            type={toast.type}
-            onClose={() => setToast(null)}
-          />
+          <>
+            {console.log("🔥🔥 TOAST IS RENDERING:", toast)}
+
+            <Toast
+              message={toast.message}
+              type={toast.type}
+              onClose={() => setToast(null)}
+            />
+          </>
         )}
       </CartProvider>
     </BrowserRouter>
