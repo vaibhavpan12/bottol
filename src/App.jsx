@@ -20,7 +20,7 @@ import Orders from "./pages/Orders";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AuthModal from "./components/AuthModal";
 function StorefrontShell() {
-  const { closeDrawer } = useCart();
+  const { closeDrawer, isDrawerOpen } = useCart();
 
   const [isCheckoutOpen, setCheckoutOpen] = useState(false);
   const [isAuthOpen, setAuthOpen] = useState(false);
@@ -64,7 +64,7 @@ function StorefrontShell() {
 
       <Footer />
 
-      <FloatingCart />
+      <FloatingCart isHidden={isDrawerOpen || isCheckoutOpen || isAuthOpen} />
 
       <CartDrawer onCheckout={openCheckout} />
 

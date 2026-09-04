@@ -1,101 +1,91 @@
-import { useEffect, useState } from 'react';
-import { useCart } from '../context/CartContext';
-import Icon from './Icon';
+import { useEffect, useState } from "react";
+import { useCart } from "../context/CartContext";
+import Icon from "./Icon";
 
-export default function FloatingCart() {
-    const { cart, totals, openDrawer } = useCart();
+export default function FloatingCart({ isHidden }) {
+  const { cart, totals, openDrawer } = useCart();
 
-    const [isInProductSection, setIsInProductSection] = useState(false);
-    const [isCartVisible, setIsCartVisible] = useState(false);
+  const [isInProductSection, setIsInProductSection] = useState(false);
+  const [isCartVisible, setIsCartVisible] = useState(false);
 
-    // Product section detection
-    useEffect(() => {
-        const handleScroll = () => {
-            const shopSection = document.getElementById('shop');
+  // Product section detection
+  useEffect(() => {
+    const handleScroll = () => {
+      const shopSection = document.getElementById("shop");
 
-            if (!shopSection) return;
+      if (!shopSection) return;
 
-            const rect = shopSection.getBoundingClientRect();
+      const rect = shopSection.getBoundingClientRect();
 
-            const productSectionVisible =
-                rect.top < window.innerHeight &&
-                rect.bottom > 0;
+      const productSectionVisible =
+        rect.top < window.innerHeight && rect.bottom > 0;
 
-            setIsInProductSection(productSectionVisible);
-        };
+      setIsInProductSection(productSectionVisible);
+    };
 
-        window.addEventListener('scroll', handleScroll, {
-            passive: true,
-        });
+    window.addEventListener("scroll", handleScroll, {
+      passive: true,
+    });
 
-        handleScroll();
+    handleScroll();
 
-        return () => {
-            window.removeEventListener('scroll', handleScroll);
-        };
-    }, []);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
-    // Cart section ke andar enter/leave animation
-    useEffect(() => {
-        if (!cart.length) {
-            setIsCartVisible(false);
-            return;
-        }
-
-        if (isInProductSection) {
-            // Pehle hidden state render hone do,
-            // phir next frame me visible karo
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    setIsCartVisible(true);
-                });
-            });
-        } else {
-            setIsCartVisible(false);
-        }
-    }, [isInProductSection, cart.length]);
-
-    if (cart.length === 0) {
-        return null;
+  // Cart section ke andar enter/leave animation
+  useEffect(() => {
+    if (!cart.length) {
+      setIsCartVisible(false);
+      return;
     }
 
-    const firstItem = cart[0];
+    if (isInProductSection) {
+      // Pehle hidden state render hone do,
+      // phir next frame me visible karo
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setIsCartVisible(true);
+        });
+      });
+    } else {
+      setIsCartVisible(false);
+    }
+  }, [isInProductSection, cart.length]);
 
-    return (
-        <div
-            className={`floating-cart ${isCartVisible
-                    ? 'floating-cart-visible'
-                    : 'floating-cart-hidden'
-                }`}
-            onClick={openDrawer}
-        >
-            <div className="floating-cart-icon">
-                <Icon name="cart" />
+  if (cart.length === 0) {
+    return null;
+  }
 
-                <span className="floating-cart-count">
-                    {totals.itemCount}
-                </span>
-            </div>
+  const firstItem = cart[0];
 
-            <div className="floating-cart-info">
-                <span className="floating-cart-title">
-                    {cart.length === 1
-                        ? firstItem.name
-                        : `${cart.length} products`}
-                </span>
+  return (
+    <div
+      className={`floating-cart ${
+        isCartVisible && !isHidden
+          ? "floating-cart-visible"
+          : "floating-cart-hidden"
+      }`}
+      onClick={openDrawer}
+    >
+      <div className="floating-cart-icon">
+        <Icon name="cart" />
 
-                <span className="floating-cart-items">
-                    {totals.itemCount} items
-                </span>
-            </div>
+        <span className="floating-cart-count">{totals.itemCount}</span>
+      </div>
 
-            <div className="floating-cart-total">
-                ₹{totals.total}
-            </div>
+      <div className="floating-cart-info">
+        <span className="floating-cart-title">
+          {cart.length === 1 ? firstItem.name : `${cart.length} products`}
+        </span>
 
-            <div className="floating-cart-arrow">
-                →
-            </div>
-        </div>
-    );
+        <span className="floating-cart-items">{totals.itemCount} items</span>
+      </div>
+
+      <div className="floating-cart-total">₹{totals.total}</div>
+
+      <div className="floating-cart-arrow">→</div>
+    </div>
+  );
 }
