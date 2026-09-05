@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useCart } from "../context/CartContext";
 // import "./AIChat.css";
-
-const API_URL = "http://127.0.0.1:8000";
+import {BASE_URL} from "../config/api";
+// const BASE_URL = "http://127.0.0.1:8000";
 
 export default function AIChat() {
   const [isOpen, setIsOpen] = useState(false);
@@ -42,7 +42,7 @@ export default function AIChat() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${API_URL}/api/ai/agent`, {
+      const response = await fetch(`${BASE_URL}/api/ai/agent`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -185,7 +185,7 @@ export default function AIChat() {
                           src={
                             product.image?.startsWith("http")
                               ? product.image
-                              : `${API_URL}${product.image}`
+                              : `${BASE_URL}${product.image}`
                           }
                           alt={product.name}
                         />
@@ -277,7 +277,7 @@ export default function AIChat() {
                 src={
                   selectedProduct.image?.startsWith("http")
                     ? selectedProduct.image
-                    : `${API_URL}${selectedProduct.image}`
+                    : `${BASE_URL}${selectedProduct.image}`
                 }
                 alt={selectedProduct.name}
               />
