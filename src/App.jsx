@@ -13,6 +13,7 @@ import CartDrawer from "./components/CartDrawer";
 import CheckoutModal from "./components/CheckoutModal";
 import FloatingCart from "./components/FloatingCart";
 import Toast from "./components/Toast";
+import AIChat from "./components/AIChat";
 
 import { CartProvider, useCart } from "./context/CartContext";
 
@@ -43,10 +44,8 @@ function StorefrontShell({
     const token = localStorage.getItem("token");
 
     if (token) {
-      // Already logged in
       setCheckoutOpen(true);
     } else {
-      // User came from Cart → Checkout
       setAuthPurpose("checkout");
       setAuthOpen(true);
     }
@@ -60,13 +59,10 @@ function StorefrontShell({
 
     const token = localStorage.getItem("token");
 
-    // Only open checkout if AuthModal
-    // was opened from Cart → Checkout
     if (token && authPurpose === "checkout") {
       setCheckoutOpen(true);
     }
 
-    // Reset purpose
     setAuthPurpose(null);
   }
 
@@ -130,6 +126,11 @@ function StorefrontShell({
         initialMode="login"
         onSuccess={handleAuthSuccess}
       />
+
+      {/* =========================
+          AI SHOPPING ASSISTANT
+      ========================= */}
+      <AIChat />
     </>
   );
 }
@@ -170,6 +171,7 @@ export default function App() {
             setAuthOpen(true);
           }}
         />
+
         {/* =========================
             ROUTES
         ========================= */}
