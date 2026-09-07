@@ -20,10 +20,11 @@ import { CartProvider, useCart } from "./context/CartContext";
 import AddProduct from "./pages/AdminScreen/AddProduct";
 import ProductDetails from "./pages/ProductDetails";
 import Orders from "./pages/Orders";
-
+import AdminDashboard from "./pages/AdminScreen/AdminDashboard";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AuthModal from "./components/AuthModal";
-
+import AdminLogin from "./pages/AdminScreen/AdminLogin";
+import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
 function StorefrontShell({
   setToast,
   isAuthOpen,
@@ -208,6 +209,19 @@ export default function App() {
               ORDERS
           ========================= */}
           <Route path="/orders" element={<Orders />} />
+          {/* =========================
+    ADMIN LOGIN
+========================= */}
+
+          <Route path="/admin/login" element={<AdminLogin />} />
+
+          {/* =========================
+    PROTECTED ADMIN ROUTES
+========================= */}
+
+          <Route element={<ProtectedAdminRoute />}>
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          </Route>
         </Routes>
 
         {/* =========================

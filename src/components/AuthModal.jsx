@@ -1,21 +1,25 @@
 import { useEffect, useState } from "react";
 import { BASE_URL } from "../config/api";
 import { useCart } from "../context/CartContext";
+
 export default function AuthModal({
   isOpen,
   onClose,
   initialMode = "login",
   onSuccess,
 }) {
-    console.log("🚨 AUTH MODAL PROPS:", {
+  console.log("🚨 AUTH MODAL PROPS:", {
     isOpen,
     onClose,
     onSuccess,
   });
+
   const [mode, setMode] = useState(initialMode);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
   const { mergeGuestCart } = useCart();
+
   const [loginData, setLoginData] = useState({
     email: "",
     password: "",
@@ -46,75 +50,75 @@ export default function AuthModal({
     setErrorMessage("");
   };
 
-const handleLogin = async (e) => {
-  e.preventDefault();
+  // =====================================
+  // CUSTOMER LOGIN
+  // =====================================
 
-  if (isLoading) return;
+  const handleLogin = async (e) => {
+    e.preventDefault();
 
-  console.log("🔥 LOGIN START");
+    if (isLoading) return;
 
-  setIsLoading(true);
-  setErrorMessage("");
+    console.log("🔥 LOGIN START");
 
-  try {
-    const response = await fetch(`${BASE_URL}/api/users/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(loginData),
-    });
+    setIsLoading(true);
+    setErrorMessage("");
 
-    console.log("🔥 API RESPONSE:", response.status);
+    try {
+      const response = await fetch(`${BASE_URL}/api/users/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(loginData),
+      });
 
-    const data = await response.json();
+      console.log("🔥 API RESPONSE:", response.status);
 
-    console.log("🔥 LOGIN DATA:", data);
+      const data = await response.json();
 
-    if (!response.ok) {
-      throw new Error(data.detail || "Login failed");
+      console.log("🔥 LOGIN DATA:", data);
+
+      if (!response.ok) {
+        throw new Error(data.detail || "Login failed");
+      }
+
+      console.log("✅ LOGIN SUCCESS");
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      console.log("✅ TOKEN SAVED");
+
+      console.log("➡️ MERGE CART START");
+
+      await mergeGuestCart();
+
+      console.log("✅ MERGE CART DONE");
+
+      window.dispatchEvent(new Event("auth-changed"));
+
+      console.log("✅ AUTH EVENT DISPATCHED");
+
+      onSuccess?.("You have been logged in successfully.");
+
+      onClose();
+
+      console.log("✅ MODAL CLOSED");
+    } catch (error) {
+      console.error("❌ LOGIN ERROR:", error);
+
+      setErrorMessage(
+        error.message || "Something went wrong. Please try again."
+      );
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    console.log("✅ LOGIN SUCCESS");
-
-    localStorage.setItem("token", data.token);
-    localStorage.setItem("user", JSON.stringify(data.user));
-
-    console.log("✅ TOKEN SAVED");
-
-    console.log("➡️ MERGE CART START");
-
-    await mergeGuestCart();
-
-    console.log("✅ MERGE CART DONE");
-
-    window.dispatchEvent(new Event("auth-changed"));
-
-    console.log("✅ AUTH EVENT DISPATCHED");
-
-    console.log("➡️ CALLING onSuccess");
-    console.log("🚨 onSuccess VALUE:", onSuccess);
-    console.log("🚨 onSuccess TYPE:", typeof onSuccess);
-
-    onSuccess?.("You have been logged in successfully.");
-
-    console.log("✅ onSuccess CALLED");
-
-    onClose();
-
-    console.log("✅ MODAL CLOSED");
-
-  } catch (error) {
-    console.error("❌ LOGIN ERROR:", error);
-
-    setErrorMessage(
-      error.message || "Something went wrong. Please try again."
-    );
-
-  } finally {
-    setIsLoading(false);
-  }
-};
+  // =====================================
+  // CUSTOMER SIGNUP
+  // =====================================
 
   async function handleSignup(e) {
     e.preventDefault();
@@ -155,15 +159,20 @@ const handleLogin = async (e) => {
       window.dispatchEvent(new Event("auth-changed"));
 
       onSuccess?.("Your Pivora account was created successfully.");
+
       onClose();
     } catch (error) {
       setErrorMessage(
-        error.message || "Something went wrong. Please try again.",
+        error.message || "Something went wrong. Please try again."
       );
     } finally {
       setIsLoading(false);
     }
   }
+
+  // =====================================
+  // CLOSE MODAL
+  // =====================================
 
   if (!isOpen) return null;
 
@@ -177,7 +186,11 @@ const handleLogin = async (e) => {
       }}
     >
       <div className="auth-modal">
-        {/* Close Button */}
+
+        {/* =====================================
+            CLOSE BUTTON
+        ===================================== */}
+
         <button
           className="auth-close"
           onClick={onClose}
@@ -187,7 +200,10 @@ const handleLogin = async (e) => {
           ×
         </button>
 
-        {/* Error Message */}
+        {/* =====================================
+            ERROR MESSAGE
+        ===================================== */}
+
         {errorMessage && (
           <div className="auth-error" role="alert">
             <span className="auth-error-icon">!</span>
@@ -195,12 +211,22 @@ const handleLogin = async (e) => {
           </div>
         )}
 
+        {/* =====================================
+            LOGIN
+        ===================================== */}
+
         {mode === "login" ? (
           <>
             <h2>Welcome back</h2>
-            <p className="auth-subtitle">Login to your Pivora account</p>
+
+            <p className="auth-subtitle">
+              Login to your Pivora account
+            </p>
 
             <form onSubmit={handleLogin}>
+
+              {/* EMAIL */}
+
               <div className="field">
                 <label>Email</label>
 
@@ -213,12 +239,15 @@ const handleLogin = async (e) => {
                       ...loginData,
                       email: e.target.value,
                     });
+
                     setErrorMessage("");
                   }}
                   disabled={isLoading}
                   required
                 />
               </div>
+
+              {/* PASSWORD */}
 
               <div className="field">
                 <label>Password</label>
@@ -232,6 +261,7 @@ const handleLogin = async (e) => {
                       ...loginData,
                       password: e.target.value,
                     });
+
                     setErrorMessage("");
                   }}
                   disabled={isLoading}
@@ -239,40 +269,84 @@ const handleLogin = async (e) => {
                 />
               </div>
 
+              {/* LOGIN BUTTON */}
+
               <button
-                className={`auth-submit ${isLoading ? "loading" : ""}`}
+                className={`auth-submit ${
+                  isLoading ? "loading" : ""
+                }`}
                 type="submit"
                 disabled={isLoading}
               >
                 {isLoading ? (
                   <span className="auth-loader-content">
                     <span className="auth-spinner"></span>
+
                     <span>Logging in...</span>
                   </span>
                 ) : (
                   "Login"
                 )}
               </button>
+
             </form>
 
-            <div className="auth-switch">
-              Don't have an account?
+            {/* =====================================
+                SIGNUP + ADMIN LOGIN
+            ===================================== */}
+
+            <div className="auth-switch auth-login-options">
+
+              <span className="auth-signup-option">
+                Don't have an account?
+
+                <button
+                  type="button"
+                  onClick={() => switchMode("signup")}
+                  disabled={isLoading}
+                >
+                  Sign up
+                </button>
+              </span>
+
+              <span className="auth-option-divider">
+                |
+              </span>
+
               <button
                 type="button"
-                onClick={() => switchMode("signup")}
+                className="admin-login-link"
+                onClick={() => {
+                  if (isLoading) return;
+
+                  onClose();
+
+                  window.location.href = "/admin/login";
+                }}
                 disabled={isLoading}
               >
-                Sign up
+                Admin Login
               </button>
+
             </div>
           </>
         ) : (
+
+          /* =====================================
+              SIGNUP
+          ===================================== */
+
           <>
             <h2>Create account</h2>
 
-            <p className="auth-subtitle">Enter your shipping details</p>
+            <p className="auth-subtitle">
+              Enter your shipping details
+            </p>
 
             <form onSubmit={handleSignup}>
+
+              {/* NAME */}
+
               <div className="field">
                 <label>Full name</label>
 
@@ -291,6 +365,8 @@ const handleLogin = async (e) => {
                 />
               </div>
 
+              {/* EMAIL */}
+
               <div className="field">
                 <label>Email</label>
 
@@ -303,12 +379,15 @@ const handleLogin = async (e) => {
                       ...signupData,
                       email: e.target.value,
                     });
+
                     setErrorMessage("");
                   }}
                   disabled={isLoading}
                   required
                 />
               </div>
+
+              {/* PASSWORD */}
 
               <div className="field">
                 <label>Create password</label>
@@ -328,6 +407,8 @@ const handleLogin = async (e) => {
                 />
               </div>
 
+              {/* ADDRESS */}
+
               <div className="field">
                 <label>Address</label>
 
@@ -346,7 +427,10 @@ const handleLogin = async (e) => {
                 />
               </div>
 
+              {/* CITY + PIN */}
+
               <div className="field-row">
+
                 <div className="field">
                   <label>City</label>
 
@@ -382,7 +466,10 @@ const handleLogin = async (e) => {
                     required
                   />
                 </div>
+
               </div>
+
+              {/* PHONE */}
 
               <div className="field">
                 <label>Phone</label>
@@ -402,24 +489,34 @@ const handleLogin = async (e) => {
                 />
               </div>
 
+              {/* SIGNUP BUTTON */}
+
               <button
-                className={`auth-submit ${isLoading ? "loading" : ""}`}
+                className={`auth-submit ${
+                  isLoading ? "loading" : ""
+                }`}
                 type="submit"
                 disabled={isLoading}
               >
                 {isLoading ? (
                   <span className="auth-loader-content">
                     <span className="auth-spinner"></span>
+
                     <span>Creating account...</span>
                   </span>
                 ) : (
                   "Create account"
                 )}
               </button>
+
             </form>
 
+            {/* LOGIN SWITCH */}
+
             <div className="auth-switch">
+
               Already have an account?
+
               <button
                 type="button"
                 onClick={() => switchMode("login")}
@@ -427,20 +524,29 @@ const handleLogin = async (e) => {
               >
                 Login
               </button>
+
             </div>
           </>
         )}
 
-        {/* Full Modal Loading Overlay */}
+        {/* =====================================
+            FULL MODAL LOADING OVERLAY
+        ===================================== */}
+
         {isLoading && (
           <div className="auth-loading-overlay">
+
             <div className="auth-loading-circle">
+
               <span></span>
               <span></span>
               <span></span>
+
             </div>
+
           </div>
         )}
+
       </div>
     </div>
   );
