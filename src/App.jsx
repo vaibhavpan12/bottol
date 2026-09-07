@@ -130,7 +130,7 @@ function StorefrontShell({
       {/* =========================
           AI SHOPPING ASSISTANT
       ========================= */}
-      <AIChat />
+      {/* <AIChat /> */}
     </>
   );
 }
