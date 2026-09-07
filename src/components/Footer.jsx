@@ -73,7 +73,7 @@ export default function Footer() {
         <div className="foot-grid">
           <div className="foot-brand">
             <a href="#" className="logo">
-              <span className="mark">P</span>Pivora
+              <span className="mark"></span>Pivora
             </a>
             <p>
               A new standard for the daily carry. Engineered tumblers and considered
