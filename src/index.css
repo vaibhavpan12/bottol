@@ -6050,6 +6050,8 @@ select {
     0 8px 25px rgba(0, 0, 0, 0.12);
 
   animation: aiLabelFloat 2.5s ease-in-out infinite;
+      margin-right: 5em;
+    margin-bottom: 0.5em;
 }
 
 .ai-floating-label span {

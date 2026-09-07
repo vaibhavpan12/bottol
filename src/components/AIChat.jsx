@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { useCart } from "../context/CartContext";
+import { BASE_URL } from "../config/api";
 // import "./AIChat.css";
-import {BASE_URL} from "../config/api";
-// const BASE_URL = "http://127.0.0.1:8000";
 
 export default function AIChat() {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,7 +11,12 @@ export default function AIChat() {
   // Selected product for details modal
   const [selectedProduct, setSelectedProduct] = useState(null);
 
-  const { addToCart } = useCart();
+  // Cart Context
+  const {
+    addToCart,
+    openDrawer,
+    isDrawerOpen,
+  } = useCart();
 
   const [messages, setMessages] = useState([
     {
@@ -73,7 +77,8 @@ export default function AIChat() {
         ...prev,
         {
           role: "ai",
-          content: "Sorry, I'm unable to connect right now. Please try again.",
+          content:
+            "Sorry, I'm unable to connect right now. Please try again.",
         },
       ]);
     } finally {
@@ -96,18 +101,26 @@ export default function AIChat() {
   const handleAddToCart = () => {
     if (!selectedProduct) return;
 
+    // Product out of stock
     if (selectedProduct.quantity <= 0) {
       return;
     }
 
+    // AI product uses "id"
+    // CartContext expects "_id"
     addToCart({
       ...selectedProduct,
       _id: selectedProduct.id,
-      quantity: 1,
     });
 
     // Close product modal
     setSelectedProduct(null);
+
+    // Close AI chat
+    setIsOpen(false);
+
+    // Open cart drawer
+    openDrawer();
   };
 
   return (
@@ -116,9 +129,10 @@ export default function AIChat() {
           CHAT POPUP
       ================================================= */}
 
-      {isOpen && (
+      {isOpen && !isDrawerOpen && (
         <div className="ai-chat-popup">
           {/* HEADER */}
+
           <div className="ai-chat-header">
             <div className="ai-chat-title">
               <div className="ai-chat-avatar">✨</div>
@@ -129,7 +143,10 @@ export default function AIChat() {
               </div>
             </div>
 
-            <button className="ai-close-btn" onClick={() => setIsOpen(false)}>
+            <button
+              className="ai-close-btn"
+              onClick={() => setIsOpen(false)}
+            >
               ×
             </button>
           </div>
@@ -198,7 +215,9 @@ export default function AIChat() {
                           <p>₹{product.price}</p>
 
                           <span>
-                            {product.quantity > 0 ? "In Stock" : "Out of Stock"}
+                            {product.quantity > 0
+                              ? "In Stock"
+                              : "Out of Stock"}
                           </span>
                         </div>
                       </div>
@@ -252,7 +271,7 @@ export default function AIChat() {
           PRODUCT DETAILS MODAL
       ================================================= */}
 
-      {selectedProduct && (
+      {selectedProduct && !isDrawerOpen && (
         <div
           className="ai-product-modal-overlay"
           onClick={() => setSelectedProduct(null)}
@@ -292,7 +311,9 @@ export default function AIChat() {
 
               <h2>{selectedProduct.name}</h2>
 
-              <div className="ai-product-price">₹{selectedProduct.price}</div>
+              <div className="ai-product-price">
+                ₹{selectedProduct.price}
+              </div>
 
               {/* STOCK */}
 
@@ -305,7 +326,9 @@ export default function AIChat() {
               {/* TRENDING */}
 
               {selectedProduct.trending && (
-                <div className="ai-product-trending">🔥 Trending Product</div>
+                <div className="ai-product-trending">
+                  🔥 Trending Product
+                </div>
               )}
 
               {/* ADD TO CART */}
@@ -315,7 +338,9 @@ export default function AIChat() {
                 disabled={selectedProduct.quantity <= 0}
                 onClick={handleAddToCart}
               >
-                {selectedProduct.quantity > 0 ? "Add to Cart" : "Out of Stock"}
+                {selectedProduct.quantity > 0
+                  ? "Add to Cart"
+                  : "Out of Stock"}
               </button>
             </div>
           </div>
@@ -326,7 +351,11 @@ export default function AIChat() {
           FLOATING AI BUTTON
       ================================================= */}
 
-      <div className="ai-floating-container">
+      <div
+        className={`ai-floating-container ${
+          isDrawerOpen ? "ai-hidden-by-cart" : ""
+        }`}
+      >
         {!isOpen && (
           <div className="ai-floating-label">
             <span>✨</span>
@@ -335,7 +364,9 @@ export default function AIChat() {
         )}
 
         <button
-          className={`ai-floating-button ${isOpen ? "ai-button-open" : ""}`}
+          className={`ai-floating-button ${
+            isOpen ? "ai-button-open" : ""
+          }`}
           onClick={() => setIsOpen(!isOpen)}
           aria-label="Open Pivora AI"
         >

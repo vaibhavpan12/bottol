@@ -1,321 +1,349 @@
-import { useState } from 'react';
-import { BASE_URL } from '../../config/api';
+import { useState } from "react";
+import { BASE_URL } from "../../config/api";
 
 export default function AddProduct() {
-    const [formData, setFormData] = useState({
-        name: '',
-        category: '',
-        image: '',
+  const [formData, setFormData] = useState({
+    name: "",
+    category: "",
+    image: "",
+    imageFile: null,
+    quantity: "",
+    trending: false,
+    price: "",
+
+    // New AI recommendation fields
+    material: "",
+    capacity: "",
+    weight: "",
+    use_cases: "",
+    features: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+      ...(name === "image" ? { imageFile: null } : {}),
+    }));
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setMessage("Please select a valid image.");
+      return;
+    }
+
+    const imageUrl = URL.createObjectURL(file);
+
+    setFormData((prev) => ({
+      ...prev,
+      image: imageUrl,
+      imageFile: file,
+    }));
+
+    setMessage("");
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    setLoading(true);
+    setMessage("");
+
+    try {
+      const form = new FormData();
+
+      form.append("name", formData.name);
+      form.append("category", formData.category);
+      form.append("quantity", formData.quantity);
+      form.append("trending", formData.trending);
+      form.append("price", formData.price);
+
+      // New product details
+      form.append("material", formData.material);
+      form.append("capacity", formData.capacity);
+      form.append("weight", formData.weight);
+
+      // Convert comma-separated text into arrays
+      const useCases = formData.use_cases
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+
+      const features = formData.features
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+
+      form.append("use_cases", JSON.stringify(useCases));
+
+      form.append("features", JSON.stringify(features));
+
+      // Device image
+      // Image file OR image URL
+      if (formData.imageFile) {
+        // Device se uploaded image
+        form.append("image", formData.imageFile);
+      } else if (formData.image) {
+        // Image URL
+        form.append("image_url", formData.image);
+      } else {
+        throw new Error("Please upload an image or enter an image URL");
+      }
+
+      const response = await fetch(`${BASE_URL}/api/products/AddProduct`, {
+        method: "POST",
+        body: form,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || "Failed to add product");
+      }
+
+      setMessage("Product added successfully!");
+
+      setFormData({
+        name: "",
+        category: "",
+        image: "",
         imageFile: null,
-        quantity: '',
+        quantity: "",
         trending: false,
-        price: '',
-    });
-
-    const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState('');
-
-    const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
-
-        setFormData((prev) => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : value,
-            ...(name === 'image' ? { imageFile: null } : {}),
-        }));
-    };
-
-    const handleImageChange = (e) => {
-        const file = e.target.files?.[0];
-
-        if (!file) return;
-
-        // Only images allowed
-        if (!file.type.startsWith('image/')) {
-            setMessage('Please select a valid image.');
-            return;
-        }
-
-        const imageUrl = URL.createObjectURL(file);
-
-        setFormData((prev) => ({
-            ...prev,
-            image: imageUrl,
-            imageFile: file,
-        }));
-
-        setMessage('');
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        setLoading(true);
-        setMessage('');
-
-        try {
-            const form = new FormData();
-
-            form.append('name', formData.name);
-            form.append('category', formData.category);
-            form.append('quantity', formData.quantity);
-            form.append('trending', formData.trending);
-            form.append('price', formData.price);
-
-            // Device se image select ki hai
-            if (formData.imageFile) {
-                form.append('image', formData.imageFile);
-            } else {
-                throw new Error('Please select a product image');
-            }
-
-            const response = await fetch(
-                `${BASE_URL}/api/products/AddProduct`,
-                {
-                    method: 'POST',
-                    body: form,
-                }
-            );
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(
-                    data.detail || 'Failed to add product'
-                );
-            }
-
-            setMessage('Product added successfully!');
-
-            setFormData({
-                name: '',
-                category: '',
-                image: '',
-                imageFile: null,
-                quantity: '',
-                trending: false,
-                price: '',
-            });
-
-        } catch (error) {
-            console.error(error);
-            setMessage(
-                error.message || 'Something went wrong'
-            );
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return (
-        <section className="add-product-page">
-            <div className="add-product-container">
-
-                {/* Header */}
-                <div className="add-product-header">
-                    <span className="kicker">
-                        Product Management
-                    </span>
-
-                    <h1>Add Product</h1>
-
-                    <p>
-                        Add a new bottle to your collection.
-                    </p>
-                </div>
-
-
-                {/* Form */}
-                <form
-                    onSubmit={handleSubmit}
-                    className="add-product-form"
-                >
-
-                    {/* Product Name */}
-                    <div className="form-group">
-                        <label>
-                            Product Name
-                        </label>
-
-                        <input
-                            type="text"
-                            name="name"
-                            placeholder="e.g. Ocean Blue"
-                            value={formData.name}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
-
-
-                    {/* Category + Price */}
-                    <div className="form-row">
-
-                        <div className="form-group">
-                            <label>
-                                Category
-                            </label>
-
-                            <input
-                                type="text"
-                                name="category"
-                                placeholder="e.g. Sports Bottles"
-                                value={formData.category}
-                                onChange={handleChange}
-                                required
-                            />
-                        </div>
-
-
-                        <div className="form-group">
-                            <label>
-                                Price
-                            </label>
-
-                            <input
-                                type="number"
-                                name="price"
-                                placeholder="999"
-                                min="1"
-                                value={formData.price}
-                                onChange={handleChange}
-                                required
-                            />
-                        </div>
-
-                    </div>
-
-
-                    {/* Quantity */}
-                    <div className="form-group">
-                        <label>
-                            Quantity
-                        </label>
-
-                        <input
-                            type="number"
-                            name="quantity"
-                            placeholder="50"
-                            min="0"
-                            value={formData.quantity}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
-
-
-                    {/* Product Image */}
-                    <div className="form-group">
-
-                        <label>
-                            Product Image
-                        </label>
-
-
-                        <div className="image-options">
-
-                            {/* Device Image */}
-                            <label className="upload-image-btn">
-
-                                📷 Choose / Take Photo
-
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    capture="environment"
-                                    onChange={handleImageChange}
-                                />
-
-                            </label>
-
-
-                            <span className="or-text">
-                                OR
-                            </span>
-
-
-                            {/* Image URL */}
-                            <input
-                                type="url"
-                                name="image"
-                                placeholder="https://example.com/bottle.jpg"
-                                value={
-                                    formData.imageFile
-                                        ? ''
-                                        : formData.image
-                                }
-                                onChange={handleChange}
-                            />
-
-                        </div>
-
-                    </div>
-
-
-                    {/* Image Preview */}
-                    {formData.image && (
-                        <div className="image-preview">
-
-                            <p>
-                                Image Preview
-                            </p>
-
-                            <div className="preview-box">
-
-                                <img
-                                    src={formData.image}
-                                    alt="Product preview"
-                                    onError={(e) => {
-                                        e.currentTarget.style.display =
-                                            'none';
-                                    }}
-                                />
-
-                            </div>
-
-                        </div>
-                    )}
-
-
-                    {/* Trending */}
-                    <label className="trending-option">
-
-                        <input
-                            type="checkbox"
-                            name="trending"
-                            checked={formData.trending}
-                            onChange={handleChange}
-                        />
-
-                        <span>
-                            Mark as Trending
-                        </span>
-
-                    </label>
-
-
-                    {/* Submit */}
-                    <button
-                        type="submit"
-                        className="add-product-btn"
-                        disabled={loading}
-                    >
-                        {loading
-                            ? 'Adding Product...'
-                            : 'Add Product'}
-                    </button>
-
-
-                    {/* Message */}
-                    {message && (
-                        <p className="form-message">
-                            {message}
-                        </p>
-                    )}
-
-                </form>
-
+        price: "",
+        material: "",
+        capacity: "",
+        weight: "",
+        use_cases: "",
+        features: "",
+      });
+    } catch (error) {
+      console.error(error);
+
+      setMessage(error.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <section className="add-product-page">
+      <div className="add-product-container">
+        {/* Header */}
+        <div className="add-product-header">
+          <span className="kicker">Product Management</span>
+
+          <h1>Add Product</h1>
+
+          <p>Add a new bottle to your collection.</p>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="add-product-form">
+          {/* Product Name */}
+          <div className="form-group">
+            <label>Product Name</label>
+
+            <input
+              type="text"
+              name="name"
+              placeholder="e.g. Ocean Blue"
+              value={formData.name}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          {/* Category + Price */}
+          <div className="form-row">
+            <div className="form-group">
+              <label>Category</label>
+
+              <input
+                type="text"
+                name="category"
+                placeholder="e.g. Sports Bottles"
+                value={formData.category}
+                onChange={handleChange}
+                required
+              />
             </div>
-        </section>
-    );
+
+            <div className="form-group">
+              <label>Price</label>
+
+              <input
+                type="number"
+                name="price"
+                placeholder="999"
+                min="1"
+                value={formData.price}
+                onChange={handleChange}
+                required
+              />
+            </div>
+          </div>
+
+          {/* Quantity */}
+          <div className="form-group">
+            <label>Quantity</label>
+
+            <input
+              type="number"
+              name="quantity"
+              placeholder="50"
+              min="0"
+              value={formData.quantity}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          {/* Material + Capacity */}
+          <div className="form-row">
+            <div className="form-group">
+              <label>Material</label>
+
+              <input
+                type="text"
+                name="material"
+                placeholder="e.g. Stainless Steel"
+                value={formData.material}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Capacity</label>
+
+              <input
+                type="text"
+                name="capacity"
+                placeholder="e.g. 1 litre"
+                value={formData.capacity}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+
+          {/* Weight */}
+          <div className="form-group">
+            <label>Weight</label>
+
+            <input
+              type="text"
+              name="weight"
+              placeholder="e.g. Lightweight"
+              value={formData.weight}
+              onChange={handleChange}
+            />
+          </div>
+
+          {/* Use Cases */}
+          <div className="form-group">
+            <label>Use Cases</label>
+
+            <input
+              type="text"
+              name="use_cases"
+              placeholder="e.g. gym, office, travel, daily use"
+              value={formData.use_cases}
+              onChange={handleChange}
+            />
+
+            <small>Separate multiple use cases with commas.</small>
+          </div>
+
+          {/* Features */}
+          <div className="form-group">
+            <label>Features</label>
+
+            <input
+              type="text"
+              name="features"
+              placeholder="e.g. leak proof, BPA free, insulated"
+              value={formData.features}
+              onChange={handleChange}
+            />
+
+            <small>Separate multiple features with commas.</small>
+          </div>
+
+          {/* Product Image */}
+          <div className="form-group">
+            <label>Product Image</label>
+
+            <div className="image-options">
+              <label className="upload-image-btn">
+                📷 Choose / Take Photo
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={handleImageChange}
+                />
+              </label>
+
+              <span className="or-text">OR</span>
+
+              <input
+                type="url"
+                name="image"
+                placeholder="https://example.com/bottle.jpg"
+                value={formData.imageFile ? "" : formData.image}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+
+          {/* Image Preview */}
+          {formData.image && (
+            <div className="image-preview">
+              <p>Image Preview</p>
+
+              <div className="preview-box">
+                <img
+                  src={formData.image}
+                  alt="Product preview"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Trending */}
+          <label className="trending-option">
+            <input
+              type="checkbox"
+              name="trending"
+              checked={formData.trending}
+              onChange={handleChange}
+            />
+
+            <span>Mark as Trending</span>
+          </label>
+
+          {/* Submit */}
+          <button type="submit" className="add-product-btn" disabled={loading}>
+            {loading ? "Adding Product..." : "Add Product"}
+          </button>
+
+          {/* Message */}
+          {message && <p className="form-message">{message}</p>}
+        </form>
+      </div>
+    </section>
+  );
 }
