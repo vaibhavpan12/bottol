@@ -160,17 +160,7 @@ export default function AdminCustomers() {
           <p>Manage your product inventory.</p>
         </div>
 
-        <button
-          type="button"
-          className="admin-add-product-btn"
-          onClick={() => {
-            // Yahan tumhara Add Product modal open hoga
-            setShowAddModal(true);
-          }}
-        >
-          <span>+</span>
-          Add Product
-        </button>
+        
       </div>
 
       {/* =================================
