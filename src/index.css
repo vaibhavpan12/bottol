@@ -1684,7 +1684,7 @@ footer {
 .add-product-form {
   background: #fff;
   border: 1px solid #ddd;
-  border-radius: 20px;
+  /* border-radius: 20px; */
   padding: 32px;
 }
 
