@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { BASE_URL } from "../../config/api";
 
-export default function AddProduct() {
+export default function AddProduct({ onClose, onSuccess }) {
   const [formData, setFormData] = useState({
     name: "",
     category: "",
@@ -11,7 +11,6 @@ export default function AddProduct() {
     trending: false,
     price: "",
 
-    // New AI recommendation fields
     material: "",
     capacity: "",
     weight: "",
@@ -68,12 +67,10 @@ export default function AddProduct() {
       form.append("trending", formData.trending);
       form.append("price", formData.price);
 
-      // New product details
       form.append("material", formData.material);
       form.append("capacity", formData.capacity);
       form.append("weight", formData.weight);
 
-      // Convert comma-separated text into arrays
       const useCases = formData.use_cases
         .split(",")
         .map((item) => item.trim())
@@ -85,34 +82,43 @@ export default function AddProduct() {
         .filter(Boolean);
 
       form.append("use_cases", JSON.stringify(useCases));
-
       form.append("features", JSON.stringify(features));
 
-      // Device image
-      // Image file OR image URL
       if (formData.imageFile) {
-        // Device se uploaded image
         form.append("image", formData.imageFile);
       } else if (formData.image) {
-        // Image URL
         form.append("image_url", formData.image);
       } else {
-        throw new Error("Please upload an image or enter an image URL");
+        throw new Error(
+          "Please upload an image or enter an image URL"
+        );
       }
 
-      const response = await fetch(`${BASE_URL}/api/products/AddProduct`, {
-        method: "POST",
-        body: form,
-      });
+      const response = await fetch(
+        `${BASE_URL}/api/products/AddProduct`,
+        {
+          method: "POST",
+          body: form,
+        }
+      );
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.detail || "Failed to add product");
+        throw new Error(
+          data.detail || "Failed to add product"
+        );
       }
 
       setMessage("Product added successfully!");
 
+      // Parent ko batao ki product successfully add ho gaya
+      if (onSuccess) {
+        onSuccess(data);
+      }
+
+      // Agar normal AddProduct page ki tarah use ho raha hai
+      // to bhi form reset hoga
       setFormData({
         name: "",
         category: "",
@@ -127,10 +133,13 @@ export default function AddProduct() {
         use_cases: "",
         features: "",
       });
+
     } catch (error) {
       console.error(error);
 
-      setMessage(error.message || "Something went wrong");
+      setMessage(
+        error.message || "Something went wrong"
+      );
     } finally {
       setLoading(false);
     }
@@ -139,17 +148,26 @@ export default function AddProduct() {
   return (
     <section className="add-product-page">
       <div className="add-product-container">
+
         {/* Header */}
         <div className="add-product-header">
-          <span className="kicker">Product Management</span>
+          <span className="kicker">
+            Product Management
+          </span>
 
           <h1>Add Product</h1>
 
-          <p>Add a new bottle to your collection.</p>
+          <p>
+            Add a new bottle to your collection.
+          </p>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="add-product-form">
+        <form
+          onSubmit={handleSubmit}
+          className="add-product-form"
+        >
+
           {/* Product Name */}
           <div className="form-group">
             <label>Product Name</label>
@@ -166,6 +184,7 @@ export default function AddProduct() {
 
           {/* Category + Price */}
           <div className="form-row">
+
             <div className="form-group">
               <label>Category</label>
 
@@ -192,6 +211,7 @@ export default function AddProduct() {
                 required
               />
             </div>
+
           </div>
 
           {/* Quantity */}
@@ -211,6 +231,7 @@ export default function AddProduct() {
 
           {/* Material + Capacity */}
           <div className="form-row">
+
             <div className="form-group">
               <label>Material</label>
 
@@ -234,6 +255,7 @@ export default function AddProduct() {
                 onChange={handleChange}
               />
             </div>
+
           </div>
 
           {/* Weight */}
@@ -261,7 +283,9 @@ export default function AddProduct() {
               onChange={handleChange}
             />
 
-            <small>Separate multiple use cases with commas.</small>
+            <small>
+              Separate multiple use cases with commas.
+            </small>
           </div>
 
           {/* Features */}
@@ -276,7 +300,9 @@ export default function AddProduct() {
               onChange={handleChange}
             />
 
-            <small>Separate multiple features with commas.</small>
+            <small>
+              Separate multiple features with commas.
+            </small>
           </div>
 
           {/* Product Image */}
@@ -284,8 +310,10 @@ export default function AddProduct() {
             <label>Product Image</label>
 
             <div className="image-options">
+
               <label className="upload-image-btn">
                 📷 Choose / Take Photo
+
                 <input
                   type="file"
                   accept="image/*"
@@ -294,37 +322,50 @@ export default function AddProduct() {
                 />
               </label>
 
-              <span className="or-text">OR</span>
+              <span className="or-text">
+                OR
+              </span>
 
               <input
                 type="url"
                 name="image"
                 placeholder="https://example.com/bottle.jpg"
-                value={formData.imageFile ? "" : formData.image}
+                value={
+                  formData.imageFile
+                    ? ""
+                    : formData.image
+                }
                 onChange={handleChange}
               />
+
             </div>
           </div>
 
           {/* Image Preview */}
           {formData.image && (
             <div className="image-preview">
+
               <p>Image Preview</p>
 
               <div className="preview-box">
+
                 <img
                   src={formData.image}
                   alt="Product preview"
                   onError={(e) => {
-                    e.currentTarget.style.display = "none";
+                    e.currentTarget.style.display =
+                      "none";
                   }}
                 />
+
               </div>
+
             </div>
           )}
 
           {/* Trending */}
           <label className="trending-option">
+
             <input
               type="checkbox"
               name="trending"
@@ -332,17 +373,47 @@ export default function AddProduct() {
               onChange={handleChange}
             />
 
-            <span>Mark as Trending</span>
+            <span>
+              Mark as Trending
+            </span>
+
           </label>
 
-          {/* Submit */}
-          <button type="submit" className="add-product-btn" disabled={loading}>
-            {loading ? "Adding Product..." : "Add Product"}
-          </button>
+          {/* Buttons */}
+          <div className="add-product-modal-actions">
+
+            {onClose && (
+              <button
+                type="button"
+                className="add-product-cancel-btn"
+                onClick={onClose}
+                disabled={loading}
+              >
+                Cancel
+              </button>
+            )}
+
+            <button
+              type="submit"
+              className="add-product-btn"
+              disabled={loading}
+            >
+              {loading
+                ? "Adding Product..."
+                : "Add Product"}
+            </button>
+
+          </div>
 
           {/* Message */}
-          {message && <p className="form-message">{message}</p>}
+          {message && (
+            <p className="form-message">
+              {message}
+            </p>
+          )}
+
         </form>
+
       </div>
     </section>
   );

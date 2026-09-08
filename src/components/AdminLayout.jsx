@@ -1,9 +1,11 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import "../css/Admin.css";
 
 const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const navigate = useNavigate();
 
   const menuItems = [
     {
@@ -38,10 +40,36 @@ const AdminLayout = () => {
     },
   ];
 
+  // =====================================
+  // ADMIN LOGOUT
+  // =====================================
+
+  const handleLogout = () => {
+    localStorage.removeItem("adminToken");
+    localStorage.removeItem("adminUser");
+
+    setSidebarOpen(false);
+
+    navigate("/admin/login", {
+      replace: true,
+    });
+  };
+
+  // =====================================
+  // GET ADMIN INFO
+  // =====================================
+
+  const adminUser = JSON.parse(
+    localStorage.getItem("adminUser") || "{}"
+  );
+
   return (
     <div className="admin-layout">
 
-      {/* Mobile Overlay */}
+      {/* =====================================
+          MOBILE OVERLAY
+      ===================================== */}
+
       {sidebarOpen && (
         <div
           className="admin-overlay"
@@ -49,26 +77,46 @@ const AdminLayout = () => {
         />
       )}
 
-      {/* Sidebar */}
-      <aside className={`admin-sidebar ${sidebarOpen ? "open" : ""}`}>
+
+      {/* =====================================
+          SIDEBAR
+      ===================================== */}
+
+      <aside
+        className={`admin-sidebar ${
+          sidebarOpen ? "open" : ""
+        }`}
+      >
+
+        {/* LOGO */}
 
         <div className="admin-logo">
           <span>PIVORA</span>
           <small>ADMIN</small>
         </div>
 
+
+        {/* NAVIGATION */}
+
         <nav className="admin-nav">
 
-          <p className="admin-nav-title">MAIN MENU</p>
+          <p className="admin-nav-title">
+            MAIN MENU
+          </p>
+
 
           {menuItems.map((item) => (
             <NavLink
               key={item.path}
               to={item.path}
               className={({ isActive }) =>
-                `admin-nav-link ${isActive ? "active" : ""}`
+                `admin-nav-link ${
+                  isActive ? "active" : ""
+                }`
               }
-              onClick={() => setSidebarOpen(false)}
+              onClick={() =>
+                setSidebarOpen(false)
+              }
             >
               <span className="admin-nav-icon">
                 {item.icon}
@@ -78,27 +126,47 @@ const AdminLayout = () => {
             </NavLink>
           ))}
 
+
+          {/* SYSTEM */}
+
           <p className="admin-nav-title settings-title">
             SYSTEM
           </p>
 
+
           <NavLink
             to="/admin/settings"
             className={({ isActive }) =>
-              `admin-nav-link ${isActive ? "active" : ""}`
+              `admin-nav-link ${
+                isActive ? "active" : ""
+              }`
             }
-            onClick={() => setSidebarOpen(false)}
+            onClick={() =>
+              setSidebarOpen(false)
+            }
           >
-            <span className="admin-nav-icon">⚙</span>
+            <span className="admin-nav-icon">
+              ⚙
+            </span>
+
             <span>Settings</span>
           </NavLink>
 
         </nav>
 
+
+        {/* =====================================
+            LOGOUT
+        ===================================== */}
+
         <div className="admin-sidebar-bottom">
 
-          <button className="admin-logout">
+          <button
+            className="admin-logout"
+            onClick={handleLogout}
+          >
             <span>↪</span>
+
             Logout
           </button>
 
@@ -107,18 +175,28 @@ const AdminLayout = () => {
       </aside>
 
 
-      {/* Main Area */}
+      {/* =====================================
+          MAIN AREA
+      ===================================== */}
+
       <div className="admin-main">
 
-        {/* Top Header */}
+
+        {/* =====================================
+            TOP HEADER
+        ===================================== */}
+
         <header className="admin-header">
 
           <button
             className="admin-menu-button"
-            onClick={() => setSidebarOpen(true)}
+            onClick={() =>
+              setSidebarOpen(true)
+            }
           >
             ☰
           </button>
+
 
           <div className="admin-header-right">
 
@@ -129,8 +207,15 @@ const AdminLayout = () => {
               </div>
 
               <div className="admin-profile-info">
-                <strong>Admin</strong>
-                <span>Administrator</span>
+
+                <strong>
+                  {adminUser.email || "Admin"}
+                </strong>
+
+                <span>
+                  Administrator
+                </span>
+
               </div>
 
             </div>
@@ -140,7 +225,10 @@ const AdminLayout = () => {
         </header>
 
 
-        {/* Page Content */}
+        {/* =====================================
+            PAGE CONTENT
+        ===================================== */}
+
         <main className="admin-content">
           <Outlet />
         </main>
