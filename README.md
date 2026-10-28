@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Pivora Store
 
 A general multi-category e-commerce storefront built with React + Vite, backed by
@@ -41,3 +42,6 @@ npm run build
 - Online payment is still simulated in `CheckoutModal.jsx` — connect Razorpay/Stripe.
 - Make sure the backend recalculates prices/totals and protects admin endpoints.
 - Newsletter form (`Testimonial.jsx`) needs connecting to your email provider.
+=======
+# Pivora
+>>>>>>> d908281196cd7e5031340d8ac52b4328d64cd9c2
