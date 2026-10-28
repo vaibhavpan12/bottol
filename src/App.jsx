@@ -13,7 +13,7 @@ import CartDrawer from "./components/CartDrawer";
 import CheckoutModal from "./components/CheckoutModal";
 import FloatingCart from "./components/FloatingCart";
 import Toast from "./components/Toast";
-// import AIChat from "./components/AIChat";
+import AIChat from "./components/AIChat";
 
 import { CartProvider, useCart } from "./context/CartContext";
 
@@ -170,7 +170,7 @@ function StorefrontShell({
           AI SHOPPING ASSISTANT
       ================================================= */}
 
-      {/* <AIChat /> */}
+      <AIChat />
     </>
   );
 }

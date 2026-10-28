@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useCart } from "../context/CartContext";
 import { BASE_URL } from "../config/api";
-// import "./AIChat.css";
+import "./AIChat.css";
 
 export default function AIChat() {
   const [isOpen, setIsOpen] = useState(false);
