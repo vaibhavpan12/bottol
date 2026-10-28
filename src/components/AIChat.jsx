@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useCart } from "../context/CartContext";
 import { BASE_URL } from "../config/api";
+import usePresence from "../hooks/usePresence";
 // import "./AIChat.css";
 
 export default function AIChat() {
@@ -123,14 +124,16 @@ export default function AIChat() {
     openDrawer();
   };
 
+  const chatPresence = usePresence(isOpen && !isDrawerOpen, 260);
+
   return (
     <>
       {/* =================================================
           CHAT POPUP
       ================================================= */}
 
-      {isOpen && !isDrawerOpen && (
-        <div className="ai-chat-popup">
+      {chatPresence.mounted && (
+        <div className={`ai-chat-popup${chatPresence.closing ? " is-closing" : ""}`}>
           {/* HEADER */}
 
           <div className="ai-chat-header">
@@ -245,7 +248,7 @@ export default function AIChat() {
           <div className="ai-chat-input">
             <input
               type="text"
-              placeholder="Find your perfect bottle..."
+              placeholder="Ask me to find any product..."
               value={message}
               disabled={isLoading}
               onChange={(e) => setMessage(e.target.value)}

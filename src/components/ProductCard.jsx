@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { BASE_URL } from "../config/api";
 
@@ -10,6 +11,9 @@ export default function ProductCard({
   const { cart, addToCart, changeQty } = useCart();
 
   const [imageLoaded, setImageLoaded] = useState(false);
+  const navigate = useNavigate();
+  const openProduct = () =>
+    onProductClick ? onProductClick() : navigate(`/product/${product._id}`);
 
   const imageUrl = product?.image?.startsWith("/uploads/")
     ? `${BASE_URL}${product.image}`
@@ -40,12 +44,12 @@ export default function ProductCard({
   return (
     <div
       className="card"
-      onClick={onProductClick}
+      onClick={openProduct}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
-          onProductClick?.();
+          openProduct();
         }
       }}
     >
@@ -62,6 +66,7 @@ export default function ProductCard({
         <img
           src={imageUrl}
           alt={product.name}
+          loading="lazy"
           className={`product-image ${
             imageLoaded ? "image-visible" : "image-hidden"
           }`}
@@ -75,7 +80,9 @@ export default function ProductCard({
 
         <span className="card-name">{product.name}</span>
 
-        <span className="card-spec">{product.quantity} available</span>
+        <span className={`card-spec${product.quantity <= 0 ? " out" : ""}`}>
+          {product.quantity <= 0 ? "Out of stock" : product.quantity <= 5 ? `Only ${product.quantity} left` : "In stock"}
+        </span>
 
         <div className="card-bottom">
           <span className="price">₹{product.price}</span>

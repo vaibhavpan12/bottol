@@ -1,21 +1,58 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { BASE_URL } from "../config/api";
+import { useShopUI } from "../context/ShopUIContext";
+import usePageTitle from "../hooks/usePageTitle";
 
 export default function Orders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  // Temporary user id (baad me login se aayega)
-  const userId = "USER001";
+  const [signedIn, setSignedIn] = useState(Boolean(localStorage.getItem("token")));
+  const { openLogin } = useShopUI();
+  usePageTitle("My orders");
 
   useEffect(() => {
-    fetch(`${BASE_URL}/api/orders/user/${userId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setOrders(data.orders || []);
-      })
-      .finally(() => setLoading(false));
+    const sync = () => setSignedIn(Boolean(localStorage.getItem("token")));
+    window.addEventListener("auth-changed", sync);
+    return () => window.removeEventListener("auth-changed", sync);
   }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    let user = null;
+    try {
+      user = JSON.parse(localStorage.getItem("user") || "null");
+    } catch {
+      user = null;
+    }
+
+    if (!token || !user?.id) {
+      setOrders([]);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+
+    fetch(`${BASE_URL}/api/orders/AllOrder/user/${user.id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => setOrders(data.orders || []))
+      .catch((err) => console.error("Failed to load orders:", err))
+      .finally(() => setLoading(false));
+  }, [signedIn]);
+
+  if (!signedIn) {
+    return (
+      <div className="page">
+        <div className="wrap page-state">
+          <h1>My orders</h1>
+          <p>Sign in to see your orders and their delivery status.</p>
+          <button className="btn btn-primary" onClick={openLogin}>Sign in</button>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return <div className="orders-page">Loading orders...</div>;
@@ -33,7 +70,8 @@ export default function Orders() {
         {orders.length === 0 ? (
           <div className="empty-orders">
             <h2>No orders yet</h2>
-            <p>Your completed orders will appear here.</p>
+            <p>When you place an order, it will appear here.</p>
+            <Link to="/shop" className="btn btn-primary">Start shopping</Link>
           </div>
         ) : (
           <div className="orders-list">
@@ -66,7 +104,7 @@ export default function Orders() {
                     >
                       <img
                         src={
-                          item.image.startsWith("/uploads/")
+                          item.image?.startsWith("/uploads/")
                             ? `${BASE_URL}${item.image}`
                             : item.image
                         }

@@ -1,0 +1,493 @@
+/* =====================================================
+   LIQUID GLASS
+   Frosted, see-through surfaces with a light rim and
+   specular highlight, over a soft colour field so the
+   blur has something to refract. Plus motion for tabs,
+   pages, drawers and modals.
+===================================================== */
+
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.52);
+  --glass-bg-strong: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.75);
+  --glass-edge: rgba(22, 22, 26, 0.08);
+  --glass-blur: blur(22px) saturate(185%);
+  --glass-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 -1px 0 rgba(255, 255, 255, 0.25) inset,
+    0 10px 30px rgba(22, 22, 26, 0.08),
+    0 1px 2px rgba(22, 22, 26, 0.06);
+  --glass-dark: rgba(22, 22, 26, 0.62);
+  --spring: cubic-bezier(.32, .72, 0, 1);
+  --spring-bounce: cubic-bezier(.34, 1.4, .64, 1);
+}
+
+/* ---------- Colour field behind the glass ---------- */
+body {
+  background: #F4F2EE;
+  position: relative;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: -10vmax;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(38vmax 38vmax at 12% 18%, rgba(255, 138, 61, 0.38), transparent 60%),
+    radial-gradient(34vmax 34vmax at 88% 12%, rgba(120, 140, 255, 0.30), transparent 60%),
+    radial-gradient(40vmax 40vmax at 78% 82%, rgba(255, 99, 160, 0.22), transparent 60%),
+    radial-gradient(36vmax 36vmax at 18% 88%, rgba(40, 200, 170, 0.22), transparent 60%);
+  filter: blur(30px);
+  animation: glassDrift 28s ease-in-out infinite alternate;
+}
+@keyframes glassDrift {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(-2%, 1.5%, 0) scale(1.04); }
+  100% { transform: translate3d(1.5%, -1%, 0) scale(1.02); }
+}
+
+/* ---------- Reusable glass surface ---------- */
+.glass,
+header.site-header,
+.nav-search,
+.card,
+.cat-tile,
+.shop-filters,
+.cart-list,
+.cart-summary,
+.pd-assurance,
+.pd-image,
+.perks,
+.sort-select select,
+.filter-toggle,
+.tab,
+.login-btn,
+.icon-btn,
+.user-header-btn,
+.club-form input,
+.price-inputs input,
+.cart-row-img,
+.ci-media,
+.page-state .big-code + h1 {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+.page-state .big-code + h1 { background: none; border: 0; box-shadow: none; backdrop-filter: none; }
+
+/* specular sheen on the larger panels */
+.card,
+.cat-tile,
+.cart-list,
+.hero-tile {
+  position: relative;
+}
+.card, .cat-tile, .cart-list, .hero-tile,
+.shop-filters, .cart-summary, .pd-image { isolation: isolate; }
+.card::after,
+.cat-tile::after,
+.shop-filters::after,
+.cart-summary::after,
+.pd-image::after,
+.hero-tile::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(145deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,0) 38%, rgba(255,255,255,0) 70%, rgba(255,255,255,.18) 100%);
+  mix-blend-mode: soft-light;
+  z-index: 2;
+}
+
+/* ---------- Header ---------- */
+header.site-header {
+  border: 0;
+  border-bottom: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.58);
+  box-shadow: 0 1px 0 rgba(255,255,255,.8) inset, 0 8px 30px rgba(22,22,26,.06);
+}
+.marquee.clay {
+  background: rgba(22, 22, 26, 0.82);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+.cat-bar { border-top: 1px solid rgba(255,255,255,.6); }
+.nav-search { background: rgba(255,255,255,.45); }
+.nav-search:focus-within { background: rgba(255,255,255,.8); }
+.nav-search button,
+.login-btn { transition: transform .25s var(--spring-bounce), background .2s ease; }
+.nav-search button:active,
+.login-btn:active,
+.btn:active,
+.add-btn:active,
+.checkout-btn:active { transform: scale(.95); }
+.login-btn { border-color: var(--glass-border); }
+
+/* ---------- Sliding glass tabs ---------- */
+.glass-tabs {
+  position: relative;
+  isolation: isolate;
+}
+.glass-tabs::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 0;
+  top: 0;
+  width: var(--ind-w, 0);
+  height: var(--ind-h, 0);
+  transform: translate(var(--ind-x, 0), var(--ind-y, 0));
+  opacity: var(--ind-o, 0);
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(22,22,26,.92), rgba(22,22,26,.82));
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.25) inset,
+    0 6px 18px rgba(22,22,26,.22);
+  transition:
+    transform .55s var(--spring),
+    width .55s var(--spring),
+    height .55s var(--spring),
+    opacity .3s ease;
+  pointer-events: none;
+}
+/* the active item itself is transparent; the pill shows through */
+.glass-tabs > a.active,
+.glass-tabs > button.active,
+.glass-tabs li a.active {
+  background: transparent !important;
+  color: #fff !important;
+  transition: color .3s ease;
+}
+.glass-tabs > a,
+.glass-tabs > button { transition: color .3s ease, background .2s ease; }
+.cat-bar-inner a:not(.active):hover { background: rgba(255,255,255,.55); }
+.cat-bar-inner.glass-tabs > a.deal-link.active { color: #fff !important; }
+
+/* shop sidebar */
+.glass-tabs.vertical::before { border-radius: 8px; }
+.filter-block li a.active span { color: rgba(255,255,255,.75); }
+.filter-block li a:not(.active):hover { background: rgba(255,255,255,.6); }
+
+/* product page segmented tabs */
+.pd-tabs {
+  display: flex;
+  gap: 4px;
+  margin-top: 30px;
+  padding: 5px;
+  border-radius: 14px;
+  background: rgba(255,255,255,.4);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.pd-tabs::-webkit-scrollbar { display: none; }
+.pd-tabs button {
+  flex: 1;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 14px;
+  border-radius: 10px;
+  color: var(--ink-soft);
+}
+.pd-tabs button:not(.active):hover { color: var(--ink); }
+.pd-tab-panel {
+  margin-top: 18px;
+  color: var(--ink-soft);
+  line-height: 1.75;
+  display: grid;
+  gap: 10px;
+  animation: tabIn .45s var(--spring) both;
+}
+.pd-tab-panel a { color: var(--clay-deep); font-weight: 600; text-decoration: underline; }
+@keyframes tabIn {
+  from { opacity: 0; transform: translateY(8px); filter: blur(6px); }
+  to   { opacity: 1; transform: none; filter: none; }
+}
+
+/* shop / home pill tabs */
+.tab { transition: background .25s ease, color .25s ease, transform .3s var(--spring-bounce); }
+.tab:hover { transform: translateY(-1px); }
+.tab.active {
+  background: rgba(22,22,26,.88);
+  border-color: rgba(255,255,255,.2);
+  box-shadow: 0 1px 0 rgba(255,255,255,.25) inset, 0 6px 18px rgba(22,22,26,.2);
+}
+
+/* ---------- Cards ---------- */
+.card {
+  background: rgba(255,255,255,.5);
+  transition: transform .5s var(--spring), box-shadow .4s ease, background .3s ease;
+}
+.card:hover {
+  transform: translateY(-6px) scale(1.01);
+  background: rgba(255,255,255,.7);
+  box-shadow: 0 1px 0 rgba(255,255,255,.95) inset, 0 24px 50px rgba(22,22,26,.14);
+}
+.card-media { background: rgba(255,255,255,.35); }
+.card-media .product-image { transition: transform .6s var(--spring); }
+.card:hover .card-media .product-image { transform: scale(1.06); }
+.cat-tile { transition: transform .5s var(--spring), background .3s ease; }
+.cat-tile:hover { transform: translateY(-5px); background: rgba(255,255,255,.72); }
+.cat-tile-img,
+.pd-image { background: rgba(255,255,255,.35); }
+.badge {
+  background: rgba(240, 90, 26, .85);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 1px 0 rgba(255,255,255,.35) inset;
+  z-index: 3;
+}
+
+/* ---------- Hero ---------- */
+.hero-main {
+  background: linear-gradient(140deg, rgba(22,22,26,.9) 0%, rgba(30,26,40,.82) 100%);
+  -webkit-backdrop-filter: blur(30px) saturate(160%);
+  backdrop-filter: blur(30px) saturate(160%);
+  border: 1px solid rgba(255,255,255,.14);
+  box-shadow: 0 1px 0 rgba(255,255,255,.18) inset, 0 30px 60px rgba(22,22,26,.22);
+}
+.hero-tile {
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  transition: transform .5s var(--spring), box-shadow .3s ease;
+}
+.tile-a { background: rgba(255, 220, 200, .55); }
+.tile-b { background: rgba(200, 240, 225, .55); }
+.hero-main .btn-outline {
+  background: rgba(255,255,255,.08);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border-color: rgba(255,255,255,.35);
+}
+
+.deals-banner {
+  background: linear-gradient(110deg, rgba(240,90,26,.9) 0%, rgba(255,138,61,.78) 100%);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,.35);
+  box-shadow: 0 1px 0 rgba(255,255,255,.35) inset, 0 20px 50px rgba(240,90,26,.25);
+}
+.btn-light {
+  background: rgba(255,255,255,.75);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+.btn { transition: transform .35s var(--spring-bounce), background .2s ease, box-shadow .2s ease; }
+.btn-primary { box-shadow: 0 1px 0 rgba(255,255,255,.3) inset, 0 8px 22px rgba(240,90,26,.3); }
+.btn-primary:hover { transform: translateY(-2px); }
+.btn-outline { background: rgba(255,255,255,.35); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+
+.perks { border-left: 0; border-right: 0; border-radius: 0; }
+.perk .pi { background: rgba(255,255,255,.6); border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow); }
+
+footer {
+  background: rgba(18, 18, 22, .92);
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+}
+
+/* ---------- Page transitions ---------- */
+.page-transition { animation: pageIn .55s var(--spring) both; }
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(14px); filter: blur(8px); }
+  to   { opacity: 1; transform: none; filter: none; }
+}
+/* filter on an ancestor breaks position:sticky children only while animating; remove after */
+.page-transition { animation-fill-mode: backwards; }
+
+/* ---------- Overlays: frosted backdrop ---------- */
+.overlay,
+.modal-overlay,
+.user-overlay {
+  background: rgba(22, 22, 26, 0.18);
+  -webkit-backdrop-filter: blur(0px);
+  backdrop-filter: blur(0px);
+  transition: opacity .4s ease, backdrop-filter .4s ease, -webkit-backdrop-filter .4s ease;
+}
+.overlay.show,
+.modal-overlay.show,
+.user-overlay.show {
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
+  backdrop-filter: blur(8px) saturate(140%);
+}
+
+/* ---------- Drawers: glass panel that springs in ---------- */
+.drawer,
+.user-drawer {
+  background: rgba(250, 249, 246, .9);
+  -webkit-backdrop-filter: blur(30px) saturate(190%);
+  backdrop-filter: blur(30px) saturate(190%);
+  border-left: 1px solid var(--glass-border);
+  box-shadow: 1px 0 0 rgba(255,255,255,.8) inset, -30px 0 60px rgba(22,22,26,.16);
+  transform: translateX(105%) scale(.98);
+  transform-origin: right center;
+  transition: transform .5s var(--spring), opacity .35s ease;
+  opacity: .6;
+}
+.drawer.show,
+.user-drawer.show {
+  transform: translateX(0) scale(1);
+  opacity: 1;
+}
+.drawer-head,
+.drawer-foot { background: transparent; }
+.drawer .cart-item { animation: itemIn .45s var(--spring) both; }
+.drawer.show .cart-item:nth-child(2) { animation-delay: .04s; }
+.drawer.show .cart-item:nth-child(3) { animation-delay: .08s; }
+.drawer.show .cart-item:nth-child(4) { animation-delay: .12s; }
+@keyframes itemIn {
+  from { opacity: 0; transform: translateX(18px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ---------- Modals: open with spring, close with fade-scale ---------- */
+.modal,
+.auth-modal,
+.product-modal {
+  background: rgba(255, 255, 255, .78);
+  -webkit-backdrop-filter: blur(30px) saturate(190%);
+  backdrop-filter: blur(30px) saturate(190%);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 1px 0 rgba(255,255,255,.9) inset, 0 40px 80px rgba(22,22,26,.22);
+  border-radius: 22px;
+}
+.modal {
+  transform: translateY(24px) scale(.94);
+  opacity: 0;
+  transition: transform .5s var(--spring), opacity .3s ease;
+}
+.modal-overlay.show .modal { transform: none; opacity: 1; }
+
+.auth-modal-overlay {
+  background: rgba(22, 22, 26, .2);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
+  backdrop-filter: blur(8px) saturate(140%);
+  animation: fadeIn .3s ease both;
+}
+.auth-modal { animation: glassPop .5s var(--spring) both; }
+.auth-modal-overlay.is-closing { animation: fadeOut .26s ease both; }
+.auth-modal-overlay.is-closing .auth-modal { animation: glassOut .26s ease both; }
+
+@keyframes glassPop {
+  from { opacity: 0; transform: translateY(18px) scale(.92); filter: blur(10px); }
+  to   { opacity: 1; transform: none; filter: none; }
+}
+@keyframes glassOut {
+  from { opacity: 1; transform: none; filter: none; }
+  to   { opacity: 0; transform: translateY(10px) scale(.95); filter: blur(8px); }
+}
+@keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+
+/* ---------- AI chat ---------- */
+.ai-floating-container { transition: opacity .3s ease, transform .45s var(--spring); }
+.ai-floating-container.ai-hidden-by-cart { opacity: 0; transform: translateY(20px) scale(.9); pointer-events: none; }
+.ai-chat-popup {
+  background: rgba(255, 255, 255, .72) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(190%);
+  backdrop-filter: blur(30px) saturate(190%);
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: 0 1px 0 rgba(255,255,255,.9) inset, 0 30px 70px rgba(22,22,26,.22) !important;
+  transform-origin: bottom right;
+  animation: chatOpen .5s var(--spring) both;
+}
+.ai-chat-popup.is-closing { animation: chatClose .26s ease both; }
+@keyframes chatOpen {
+  from { opacity: 0; transform: translateY(20px) scale(.85); filter: blur(10px); }
+  to   { opacity: 1; transform: none; filter: none; }
+}
+@keyframes chatClose {
+  to { opacity: 0; transform: translateY(14px) scale(.9); filter: blur(8px); }
+}
+.ai-chat-header { background: transparent !important; }
+.ai-floating-label {
+  background: rgba(255,255,255,.6) !important;
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: var(--glass-shadow) !important;
+}
+.ai-floating-button {
+  background: radial-gradient(circle at 30% 25%, #FFB07A, var(--clay) 55%, var(--clay-deep)) !important;
+  box-shadow: 0 1px 0 rgba(255,255,255,.5) inset, 0 12px 30px rgba(240,90,26,.4) !important;
+  transition: transform .45s var(--spring-bounce) !important;
+}
+.ai-floating-button:hover { transform: scale(1.08) rotate(-6deg); }
+.ai-floating-button.ai-button-open { transform: rotate(90deg); }
+
+/* ---------- Floating cart: dark liquid glass ---------- */
+.floating-cart {
+  background: var(--glass-dark) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255,255,255,.16);
+  box-shadow: 0 1px 0 rgba(255,255,255,.2) inset, 0 20px 50px rgba(22,22,26,.3) !important;
+  transition: transform .55s var(--spring), opacity .35s ease !important;
+}
+
+/* ---------- Toast ---------- */
+.toast {
+  background: rgba(255,255,255,.78) !important;
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: var(--glass-shadow) !important;
+  animation: glassPop .5s var(--spring) both;
+}
+
+/* ---------- Accessibility & fallbacks ---------- */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :root { --glass-bg: rgba(255,255,255,.92); }
+  .drawer, .user-drawer, .modal, .auth-modal, .ai-chat-popup { background: #fff !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body::before { animation: none; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}
+@media (max-width: 640px) {
+  /* lighter blur on phones for smooth scrolling */
+  .card, .cat-tile { -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+  body::before { animation: none; }
+}
+
+/* =====================================================
+   AI button + floating cart: never overlap.
+   When the cart bar is visible, the AI button (and its
+   chat window) float up above the bar with a spring.
+===================================================== */
+.ai-floating-container {
+  transition: bottom .5s var(--spring), opacity .3s ease, transform .45s var(--spring);
+}
+.ai-chat-popup { transition: bottom .5s var(--spring); }
+
+/* desktop: bar is centred, only lift when the screen is too narrow to fit both side by side */
+@media (max-width: 1180px) {
+  body.has-floating-cart .ai-floating-container { bottom: 100px; }
+  body.has-floating-cart .ai-chat-popup { bottom: 176px; max-height: calc(100vh - 200px); }
+}
+
+/* phones: bar is full width at the bottom */
+@media (max-width: 600px) {
+  body.has-floating-cart .ai-floating-container { bottom: calc(82px + env(safe-area-inset-bottom)); right: 14px; }
+  body.has-floating-cart .ai-floating-button { width: 52px; height: 52px; font-size: 22px; }
+  body.has-floating-cart .ai-chat-popup { bottom: calc(146px + env(safe-area-inset-bottom)); height: calc(100vh - 220px); }
+  /* the cart bar's arrow sits at the right edge — keep it clear and tappable */
+  .floating-cart { z-index: 9998 !important; }
+}
+
+/* The button was fixed on its own; let the container place button + label together */
+.ai-floating-container .ai-floating-button { position: static; flex-shrink: 0; }
+.ai-floating-container .ai-floating-label { margin: 0; }

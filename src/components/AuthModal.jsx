@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { BASE_URL } from "../config/api";
+import usePresence from "../hooks/usePresence";
 import { useCart } from "../context/CartContext";
 
 export default function AuthModal({
@@ -8,12 +9,8 @@ export default function AuthModal({
   initialMode = "login",
   onSuccess,
 }) {
-  console.log("🚨 AUTH MODAL PROPS:", {
-    isOpen,
-    onClose,
-    onSuccess,
-  });
 
+  const presence = usePresence(isOpen, 260);
   const [mode, setMode] = useState(initialMode);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -59,8 +56,6 @@ export default function AuthModal({
 
     if (isLoading) return;
 
-    console.log("🔥 LOGIN START");
-
     setIsLoading(true);
     setErrorMessage("");
 
@@ -73,38 +68,22 @@ export default function AuthModal({
         body: JSON.stringify(loginData),
       });
 
-      console.log("🔥 API RESPONSE:", response.status);
-
       const data = await response.json();
-
-      console.log("🔥 LOGIN DATA:", data);
 
       if (!response.ok) {
         throw new Error(data.detail || "Login failed");
       }
 
-      console.log("✅ LOGIN SUCCESS");
-
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      console.log("✅ TOKEN SAVED");
-
-      console.log("➡️ MERGE CART START");
-
       await mergeGuestCart();
 
-      console.log("✅ MERGE CART DONE");
-
       window.dispatchEvent(new Event("auth-changed"));
-
-      console.log("✅ AUTH EVENT DISPATCHED");
 
       onSuccess?.("You have been logged in successfully.");
 
       onClose();
-
-      console.log("✅ MODAL CLOSED");
     } catch (error) {
       console.error("❌ LOGIN ERROR:", error);
 
@@ -174,11 +153,11 @@ export default function AuthModal({
   // CLOSE MODAL
   // =====================================
 
-  if (!isOpen) return null;
+  if (!presence.mounted) return null;
 
   return (
     <div
-      className="auth-modal-overlay"
+      className={`auth-modal-overlay${presence.closing ? " is-closing" : ""}`}
       onClick={(e) => {
         if (e.target === e.currentTarget && !isLoading) {
           onClose();

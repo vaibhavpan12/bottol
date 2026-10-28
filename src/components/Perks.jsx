@@ -1,10 +1,10 @@
-import Icon from './Icon';
+import Icon from "./Icon";
 
 const PERKS = [
-  { icon: 'layers', title: 'Highest-grade materials', copy: '18/8 stainless steel and BPA-free seals. No shortcuts, no substitutes.' },
-  { icon: 'truck', title: 'Small-batch, fast dispatch', copy: 'Made in limited runs, out the door within 48 hours.' },
-  { icon: 'shieldCheck', title: 'Third-party tested', copy: 'Every finish and seal is pressure and leak-tested before it ships.' },
-  { icon: 'headset', title: 'Real, human support', copy: 'A person answers — not a script, not a bot.' },
+  { icon: "truck", title: "Fast delivery", copy: "Free delivery on orders over ₹1499. Most orders ship within 48 hours." },
+  { icon: "shieldCheck", title: "Secure checkout", copy: "Your details are protected. Pay online or choose cash on delivery." },
+  { icon: "layers", title: "Easy returns", copy: "Not right for you? Return eligible items within 7 days." },
+  { icon: "headset", title: "Real support", copy: "Questions about an order? Our team is here to help." },
 ];
 
 export default function Perks() {

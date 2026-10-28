@@ -1197,7 +1197,7 @@ const AdminProducts = () => {
                         onChange={
                           handleChange
                         }
-                        placeholder="https://example.com/bottle.jpg"
+                        placeholder="https://example.com/product.jpg"
                       />
 
                     </div>

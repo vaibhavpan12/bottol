@@ -1,16 +1,18 @@
 import Icon from './Icon';
+import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { productImage } from '../utils/image';
 
 function EmptyCart() {
   return (
     <div className="empty-cart">
       <span className="pi">
-        <Icon name="tumbler" />
+        <Icon name="cart" viewBox="0 0 24 24" />
       </span>
       <p>
         Your cart is empty.
         <br />
-        Add something built to last.
+        Start adding products you love.
       </p>
     </div>
   );
@@ -20,9 +22,13 @@ function CartItem({ item, onChangeQty, onRemove }) {
   return (
     <div className="cart-item">
       <div className="ci-media">
-        <span className="icon-wrap">
-          <Icon name={item.icon || 'tumbler'} />
-        </span>
+        {item.image ? (
+          <img src={productImage(item.image)} alt={item.name} className="ci-img" />
+        ) : (
+          <span className="icon-wrap">
+            <Icon name="cart" viewBox="0 0 24 24" />
+          </span>
+        )}
       </div>
 
       <div className="ci-info">
@@ -105,6 +111,11 @@ export default function CartDrawer({ onCheckout }) {
           <button className="checkout-btn" disabled={cart.length === 0} onClick={onCheckout}>
             Checkout
           </button>
+          {cart.length > 0 && (
+            <Link to="/cart" className="view-cart-link" onClick={closeDrawer}>
+              View full cart
+            </Link>
+          )}
         </div>
       </aside>
     </>

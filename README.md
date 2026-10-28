@@ -1,52 +1,43 @@
-# Pivora Storefront
+# Pivora Store
 
-A React + Vite rebuild of the Pivora drinkware storefront: product catalog with
-filtering, a persistent cart drawer, and a two-step checkout flow (demo payment only).
+A general multi-category e-commerce storefront built with React + Vite, backed by
+the Pivora API (`src/config/api.js`).
 
-## Project structure
+## Features
+- Home page: hero banner, shop-by-category tiles, today's deals, full catalogue
+- Header search, category bar, sort (price / name), category tabs — all URL-driven (`/?q=…&cat=…`)
+- Product quick-view modal and product detail page
+- Cart drawer + **floating cart bar**, guest cart in localStorage, merged on login
+- Customer login / signup, account drawer, My Orders page
+- Checkout (shipping → payment → success)
+- **AI shopping assistant** chat (`/api/ai/agent`)
+- Admin panel at `/admin` (dashboard, products incl. add product, orders, customers)
 
+## Structure
 ```
-pivora/
-├── index.html
-├── package.json
-├── vite.config.js
-├── src/
-│   ├── main.jsx              # React entry point
-│   ├── App.jsx                # Composes the page from sections
-│   ├── index.css              # Global styles / design tokens (unchanged from source)
-│   ├── context/
-│   │   └── CartContext.jsx    # Cart state, totals, shipping logic (React Context)
-│   ├── data/
-│   │   └── products.js        # Product catalog + shipping constants
-│   └── components/
-│       ├── Navbar.jsx         # Sticky header + announcement ticker + cart button
-│       ├── Footer.jsx         # Site footer + newsletter form
-│       ├── Hero.jsx           # Landing hero with the technical tumbler illustration
-│       ├── ProductGrid.jsx    # Category tabs + product grid
-│       ├── ProductCard.jsx    # Single product card
-│       ├── Perks.jsx          # "Why Pivora" perks strip
-│       ├── CartDrawer.jsx     # Slide-in cart drawer
-│       ├── CheckoutModal.jsx  # Shipping → payment → success modal flow
-│       └── Icon.jsx           # Shared monoline icon set (inline SVG)
+src/
+  App.jsx                 routes
+  hooks/useProducts.js    shared, cached product fetch + category helper
+  utils/image.js          product image URL helper
+  context/CartContext.jsx cart state, sync, totals
+  components/             storefront UI (Navbar, Hero, FeaturedStrip = categories,
+                          Spotlight = deals, ProductGrid, Perks, Testimonial = newsletter,
+                          Footer, CartDrawer, FloatingCart, AIChat, …)
+  pages/                  ProductDetails, Orders, AdminScreen/*
+  css/store.css           e-commerce theme (overrides tokens in index.css)
 ```
 
-## Getting started
+Categories are read from your products, so adding a product with a new category
+in the admin panel makes it appear in the header, tiles and tabs automatically.
 
+## Run
 ```bash
 npm install
-npm run dev       # start local dev server (http://localhost:5173)
-npm run build      # production build → dist/
-npm run preview   # preview the production build locally
+npm run dev
+npm run build
 ```
 
-## Notes for production
-
-- **Payments**: `CheckoutModal.jsx` simulates a payment with a timeout. Replace
-  `handlePay` with a real call to your payment gateway (e.g. Razorpay, Stripe)
-  before going live — do not collect real card details client-side without PCI-compliant tooling.
-- **Product data**: `src/data/products.js` is static. Swap this for a fetch to
-  your commerce API / CMS when ready.
-- **Newsletter form**: `Footer.jsx`'s `NewsletterForm` currently just tracks
-  local state. Wire the `handleSubmit` function to your ESP (Klaviyo, Mailchimp, etc.).
-- **Cart persistence**: Cart state lives in React Context and resets on page
-  reload. Add `localStorage` sync in `CartContext.jsx` if you want it to persist.
+## Before going live
+- Online payment is still simulated in `CheckoutModal.jsx` — connect Razorpay/Stripe.
+- Make sure the backend recalculates prices/totals and protects admin endpoints.
+- Newsletter form (`Testimonial.jsx`) needs connecting to your email provider.

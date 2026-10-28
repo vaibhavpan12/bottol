@@ -5,54 +5,25 @@ import Icon from "./Icon";
 export default function FloatingCart({ isHidden }) {
   const { cart, totals, openDrawer } = useCart();
 
-  const [isInProductSection, setIsInProductSection] = useState(false);
   const [isCartVisible, setIsCartVisible] = useState(false);
 
-  // Product section detection
-  useEffect(() => {
-    const handleScroll = () => {
-      const shopSection = document.getElementById("shop");
-
-      if (!shopSection) return;
-
-      const rect = shopSection.getBoundingClientRect();
-
-      const productSectionVisible =
-        rect.top < window.innerHeight && rect.bottom > 0;
-
-      setIsInProductSection(productSectionVisible);
-    };
-
-    window.addEventListener("scroll", handleScroll, {
-      passive: true,
-    });
-
-    handleScroll();
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
-
-  // Cart section ke andar enter/leave animation
+  // Slide in on every page once the cart has items (drawer/checkout/cart page hide it).
   useEffect(() => {
     if (!cart.length) {
       setIsCartVisible(false);
       return;
     }
+    const id = requestAnimationFrame(() => setIsCartVisible(true));
+    return () => cancelAnimationFrame(id);
+  }, [cart.length]);
 
-    if (isInProductSection) {
-      // Pehle hidden state render hone do,
-      // phir next frame me visible karo
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          setIsCartVisible(true);
-        });
-      });
-    } else {
-      setIsCartVisible(false);
-    }
-  }, [isInProductSection, cart.length]);
+  // Tell the rest of the page (AI chat button) that the bar is on screen,
+  // so it can move up instead of overlapping.
+  const barShown = cart.length > 0 && isCartVisible && !isHidden;
+  useEffect(() => {
+    document.body.classList.toggle("has-floating-cart", barShown);
+    return () => document.body.classList.remove("has-floating-cart");
+  }, [barShown]);
 
   if (cart.length === 0) {
     return null;

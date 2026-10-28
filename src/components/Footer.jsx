@@ -1,22 +1,31 @@
-import { useState } from 'react';
-import Icon from './Icon';
+import { Link } from "react-router-dom";
+import Icon from "./Icon";
 
 const SHOP_LINKS = [
-  { label: 'Tumblers', href: '#shop' },
-  { label: 'Trending', href: '#shop' },
-  { label: 'New drops', href: '#shop' },
+  { label: "All products", to: "/shop" },
+  { label: "Today's deals", to: "/deals" },
+  { label: "Categories", to: "/categories" },
+  { label: "Your cart", to: "/cart" },
 ];
 
-const SUPPORT_LINKS = [
-  { label: 'Track order', href: '#' },
-  { label: 'Returns', href: '#' },
-  { label: 'FAQs', href: '#' },
+const ACCOUNT_LINKS = [
+  { label: "My orders", to: "/orders" },
+  { label: "Shipping & delivery", to: "/shipping" },
+  { label: "Returns & refunds", to: "/returns" },
+  { label: "Help & FAQs", to: "/faq" },
+];
+
+const COMPANY_LINKS = [
+  { label: "About us", to: "/about" },
+  { label: "Contact", to: "/contact" },
+  { label: "Privacy policy", to: "/privacy" },
+  { label: "Terms of service", to: "/terms" },
 ];
 
 const SOCIALS = [
-  { label: 'Instagram', icon: 'instagram', href: '#' },
-  { label: 'TikTok', icon: 'tiktok', href: '#' },
-  { label: 'X', icon: 'close', href: '#' },
+  { label: "Instagram", icon: "instagram", href: "#" },
+  { label: "TikTok", icon: "tiktok", href: "#" },
+  { label: "X", icon: "close", href: "#" },
 ];
 
 function FooterLinkColumn({ title, links }) {
@@ -26,40 +35,10 @@ function FooterLinkColumn({ title, links }) {
       <ul>
         {links.map((link) => (
           <li key={link.label}>
-            <a href={link.href}>{link.label}</a>
+            {link.to ? <Link to={link.to}>{link.label}</Link> : <a href={link.href}>{link.label}</a>}
           </li>
         ))}
       </ul>
-    </div>
-  );
-}
-
-function NewsletterForm() {
-  const [email, setEmail] = useState('');
-  const [submitted, setSubmitted] = useState(false);
-
-  function handleSubmit(e) {
-    e.preventDefault();
-    if (!email.trim()) return;
-    // Wire this up to a real ESP (Klaviyo, Mailchimp, etc.) when available.
-    setSubmitted(true);
-    setEmail('');
-  }
-
-  return (
-    <div className="foot-col">
-      <h5>Join the ritual</h5>
-      <form className="news-input" onSubmit={handleSubmit}>
-        <input
-          type="email"
-          placeholder="Your email"
-          aria-label="Email for newsletter"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <button type="submit">{submitted ? 'Joined' : 'Join'}</button>
-      </form>
     </div>
   );
 }
@@ -72,18 +51,21 @@ export default function Footer() {
       <div className="wrap">
         <div className="foot-grid">
           <div className="foot-brand">
-            <a href="#" className="logo">
-              <span className="mark"></span>Pivora
-            </a>
+            <Link to="/" className="logo">
+              <span className="logo-mark">P</span>Pivora
+            </Link>
             <p>
-              A new standard for the daily carry. Engineered tumblers and considered
-              gear, built quietly and made to last.
+              Your everyday online store. Quality products across categories,
+              fair prices and delivery you can count on.
             </p>
+            <div className="pay-badges" aria-label="Payment options">
+              <span>UPI</span><span>Cards</span><span>Net banking</span><span>COD</span>
+            </div>
           </div>
 
           <FooterLinkColumn title="Shop" links={SHOP_LINKS} />
-          <FooterLinkColumn title="Support" links={SUPPORT_LINKS} />
-          <NewsletterForm />
+          <FooterLinkColumn title="Help" links={ACCOUNT_LINKS} />
+          <FooterLinkColumn title="Company" links={COMPANY_LINKS} />
         </div>
 
         <div className="foot-bottom">

@@ -158,7 +158,7 @@ export default function AddProduct({ onClose, onSuccess }) {
           <h1>Add Product</h1>
 
           <p>
-            Add a new bottle to your collection.
+            Add a new product to your store.
           </p>
         </div>
 
@@ -191,7 +191,7 @@ export default function AddProduct({ onClose, onSuccess }) {
               <input
                 type="text"
                 name="category"
-                placeholder="e.g. Sports Bottles"
+                placeholder="e.g. Electronics"
                 value={formData.category}
                 onChange={handleChange}
                 required
@@ -329,7 +329,7 @@ export default function AddProduct({ onClose, onSuccess }) {
               <input
                 type="url"
                 name="image"
-                placeholder="https://example.com/bottle.jpg"
+                placeholder="https://example.com/product.jpg"
                 value={
                   formData.imageFile
                     ? ""
