@@ -491,3 +491,10 @@ footer {
 /* The button was fixed on its own; let the container place button + label together */
 .ai-floating-container .ai-floating-button { position: static; flex-shrink: 0; }
 .ai-floating-container .ai-floating-label { margin: 0; }
+
+/* Shown when a product image link is broken */
+.image-fallback {
+  width: 100%; height: 100%;
+  display: grid; place-items: center;
+  font-size: 54px; opacity: .55;
+}

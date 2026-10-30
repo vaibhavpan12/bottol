@@ -8,8 +8,7 @@ export default function FeaturedStrip({ limit = 8, showAll = false, title = "Sho
   const categories = getCategories(products);
   const shown = showAll ? categories : categories.slice(0, limit);
 
-  if (!loading && categories.length === 0) return null;
-
+  
 
   return (
     <section className="section categories" id="categories">
@@ -38,13 +37,20 @@ export default function FeaturedStrip({ limit = 8, showAll = false, title = "Sho
                   <Link key={c.name} className="cat-tile" to={`/category/${encodeURIComponent(c.name)}`}>
                     <span className="cat-tile-img">
                       {sample ? (
-                        <img src={productImage(sample.image)} alt="" loading="lazy" />
+                        <img
+                          src={productImage(sample.image)}
+                          alt=""
+                          loading="lazy"
+                          onError={(e) => {
+                            e.currentTarget.replaceWith(Object.assign(document.createElement("span"), { className: "cat-initial", textContent: c.emoji }));
+                          }}
+                        />
                       ) : (
-                        <span className="cat-initial">{c.name.charAt(0)}</span>
+                        <span className="cat-initial">{c.emoji}</span>
                       )}
                     </span>
                     <b>{c.name}</b>
-                    <span>{c.count} {c.count === 1 ? "item" : "items"}</span>
+                    <span>{c.count ? `${c.count} ${c.count === 1 ? "item" : "items"}` : c.blurb}</span>
                   </Link>
                 );
               })}

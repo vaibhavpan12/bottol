@@ -4672,3 +4672,17 @@
     max-height: calc(100vh - 24px);
   }
 }
+/* Category dropdowns (admin add / edit product) */
+.admin-form-group select,
+.form-group select {
+  width: 100%;
+  height: 50px;
+  box-sizing: border-box;
+  padding: 0 15px;
+  border: 1px solid var(--line, #ddd);
+  border-radius: var(--radius-sm, 8px);
+  background: #fff;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}

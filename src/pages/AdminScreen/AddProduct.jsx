@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { BASE_URL } from "../../config/api";
+import { CATEGORY_NAMES } from "../../data/categories";
 
 export default function AddProduct({ onClose, onSuccess }) {
   const [formData, setFormData] = useState({
@@ -188,14 +189,17 @@ export default function AddProduct({ onClose, onSuccess }) {
             <div className="form-group">
               <label>Category</label>
 
-              <input
-                type="text"
+              <select
                 name="category"
-                placeholder="e.g. Electronics"
                 value={formData.category}
                 onChange={handleChange}
                 required
-              />
+              >
+                <option value="" disabled>Select a category</option>
+                {CATEGORY_NAMES.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
             </div>
 
             <div className="form-group">

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { BASE_URL } from "../config/api";
+import { CATEGORIES } from "../data/categories";
 
 // One shared request for the whole storefront, instead of every section
 // fetching the full catalogue separately.
@@ -47,12 +48,15 @@ export default function useProducts() {
   return { products, loading, error };
 }
 
-/** Unique, non-empty categories in catalogue order. */
+/**
+ * The store's fixed categories (src/data/categories.js) with product counts.
+ * Products whose category isn't in that list are still shown under "All products".
+ */
 export function getCategories(products) {
-  const seen = new Map();
+  const counts = new Map();
   products.forEach((p) => {
     const c = (p.category || "").trim();
-    if (c) seen.set(c, (seen.get(c) || 0) + 1);
+    if (c) counts.set(c, (counts.get(c) || 0) + 1);
   });
-  return [...seen.entries()].map(([name, count]) => ({ name, count }));
+  return CATEGORIES.map((c) => ({ ...c, count: counts.get(c.name) || 0 }));
 }

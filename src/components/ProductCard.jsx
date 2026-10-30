@@ -11,6 +11,7 @@ export default function ProductCard({
   const { cart, addToCart, changeQty } = useCart();
 
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageFailed, setImageFailed] = useState(false);
   const navigate = useNavigate();
   const openProduct = () =>
     onProductClick ? onProductClick() : navigate(`/product/${product._id}`);
@@ -63,6 +64,9 @@ export default function ProductCard({
           </div>
         )}
 
+        {imageFailed ? (
+          <div className="image-fallback" aria-hidden="true">🛍️</div>
+        ) : (
         <img
           src={imageUrl}
           alt={product.name}
@@ -71,8 +75,12 @@ export default function ProductCard({
             imageLoaded ? "image-visible" : "image-hidden"
           }`}
           onLoad={() => setImageLoaded(true)}
-          onError={() => setImageLoaded(true)}
+          onError={() => {
+            setImageLoaded(true);
+            setImageFailed(true);
+          }}
         />
+        )}
       </div>
 
       <div className="card-body">

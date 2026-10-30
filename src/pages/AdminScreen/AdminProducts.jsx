@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { BASE_URL } from "../../config/api";
+import { CATEGORY_NAMES } from "../../data/categories";
 import "../../css/Admin.css";
 
 import AdminProductDetailsModal from "../../components/ProductDetailsModal";
@@ -1055,17 +1056,21 @@ const AdminProducts = () => {
                         Category
                       </label>
 
-                      <input
-                        type="text"
+                      <select
                         name="category"
-                        value={
-                          form.category
-                        }
-                        onChange={
-                          handleChange
-                        }
+                        value={form.category}
+                        onChange={handleChange}
                         required
-                      />
+                      >
+                        <option value="" disabled>Select a category</option>
+                        {/* keep an old category visible so it isn't lost when editing */}
+                        {form.category && !CATEGORY_NAMES.includes(form.category) && (
+                          <option value={form.category}>{form.category} (old)</option>
+                        )}
+                        {CATEGORY_NAMES.map((c) => (
+                          <option key={c} value={c}>{c}</option>
+                        ))}
+                      </select>
 
                     </div>
 
