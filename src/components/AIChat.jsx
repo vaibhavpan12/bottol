@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useCart } from "../context/CartContext";
 import { BASE_URL } from "../config/api";
 import usePresence from "../hooks/usePresence";
+import useProducts from "../hooks/useProducts";
+import { localAssistant } from "../utils/localAssistant";
 // import "./AIChat.css";
 
 export default function AIChat() {
@@ -30,6 +32,8 @@ export default function AIChat() {
   // SEND MESSAGE
   // =====================================================
 
+  const { products } = useProducts();
+
   const handleSend = async () => {
     const userMessage = message.trim();
 
@@ -46,42 +50,60 @@ export default function AIChat() {
     setMessage("");
     setIsLoading(true);
 
+    // Ask the backend AI. Render's free plan sleeps, so allow time to wake
+    // up and retry once. If it still fails, answer from the products already
+    // loaded in the browser so the shopper never sees an error.
+    const ask = async () => {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 45000);
+      try {
+        const response = await fetch(`${BASE_URL}/api/ai/agent`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: userMessage }),
+          signal: controller.signal,
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || typeof data.message !== "string") {
+          throw new Error(data.detail || `AI request failed (${response.status})`);
+        }
+        return data;
+      } finally {
+        clearTimeout(timer);
+      }
+    };
+
     try {
-      const response = await fetch(`${BASE_URL}/api/ai/agent`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: userMessage,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.detail || "AI request failed");
+      let data;
+      try {
+        data = await ask();
+      } catch (firstError) {
+        console.warn("AI request failed, retrying once:", firstError);
+        data = await ask();
       }
 
       setMessages((prev) => [
         ...prev,
-        {
-          role: "ai",
-          content: data.message,
-          products: data.products || [],
-        },
+        { role: "ai", content: data.message, products: data.products || [] },
       ]);
     } catch (error) {
-      console.error("AI Error:", error);
+      console.error("AI backend unavailable, using in-browser search:", error);
 
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "ai",
-          content:
-            "Sorry, I'm unable to connect right now. Please try again.",
-        },
-      ]);
+      if (products.length) {
+        const local = localAssistant(userMessage, products);
+        setMessages((prev) => [
+          ...prev,
+          { role: "ai", content: local.message, products: local.products },
+        ]);
+      } else {
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "ai",
+            content: "I'm having trouble reaching the store right now. Please try again in a moment.",
+          },
+        ]);
+      }
     } finally {
       setIsLoading(false);
     }
